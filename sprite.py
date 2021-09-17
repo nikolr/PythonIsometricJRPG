@@ -2,7 +2,7 @@
 from typing import Tuple
 
 import pygame
-from projection import Projection
+import projection
 from enum import Enum
 
 class Direction(Enum):
@@ -80,7 +80,7 @@ class Sprite:
     #         self.facing = self.allowed_facings[index]
     
     def get_allowed_facings(self):
-        return Projection.get_orthogonal_adjecant_squares(self.pos[0], self.pos[1], 14)
+        return projection.get_orthogonal_adjecant_squares(self.pos[0], self.pos[1], 14)
 
     def draw_sprite(self, display: pygame.Surface, img: int):
-        display.blit(self.img_set[img], Projection.get_isometric_tile_center(self.pos[0], self.pos[1], 32, 16, (display.get_size()[0] / 2), (display.get_size()[1] / 2)))
+        display.blit(self.img_set[img], projection.get_isometric_tile_center(self.pos[0], self.pos[1], 32, 16, (display.get_size()[0] / 2), (display.get_size()[1] / 2)))

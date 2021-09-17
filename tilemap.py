@@ -1,5 +1,5 @@
 import pygame
-from projection import Projection
+import projection
 from tile import Tile
 
 class TileMap:
@@ -21,7 +21,7 @@ class TileMap:
         for y, row in enumerate(self.get_map_data()):
             for x, index in enumerate(row):
                 fullmap.append(Tile(x, y))
-                xi, yi = Projection.isometricprojection(x, y, 32, 16, 0, 0)
+                xi, yi = projection.isometricprojection(x, y, 32, 16, 0, 0)
                 isometricmap.append(Tile(xi, yi))
 
         return fullmap, isometricmap

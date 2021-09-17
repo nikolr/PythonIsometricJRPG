@@ -1,5 +1,5 @@
 from sprite import Sprite
-from projection import Projection
+import projection
 import unittest
 from sprite import Sprite
 #Movement from (0,0) to (1,0) should increase world coordinates by tilewidth/2 in x and tileheight/2 in y
