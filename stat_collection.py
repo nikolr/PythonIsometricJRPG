@@ -1,17 +1,17 @@
 from attribute import Attribute
-from stat_id import StatId
+from attribute_id import AttributeId
 
 class StatCollection:
 
     def __init__(self):
-        self.stat_dict = {}
+        self.attribute_dict = {}
     
-    def add_to_dict(self, stat_id: StatId, stat: Attribute):
-        self.stat_dict[stat_id] = stat
+    def add_to_dict(self, attribute_id: AttributeId, attribute: Attribute):
+        self.attribute_dict[attribute_id] = attribute
 
-    def get_stat(self, stat_id: StatId):
-        return self.stat_dict[stat_id]
+    def get_attribute(self, attribute_id: AttributeId):
+        return self.attribute_dict[attribute_id]
     
-    def print_stats(self):
-        for key, value in self.stat_dict.items():
+    def print_attributes(self):
+        for key, value in self.attribute_dict.items():
             print(f"{key}, {value.base_value}")

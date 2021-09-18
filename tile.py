@@ -13,6 +13,8 @@ class Tile:
         
         self.__xcoor = xcoor
         self.__ycoor = ycoor
+        self.occupied = False
+        self.occupier = None
         self.game_screen = game_screen
         self.tile_image = tile_image
         

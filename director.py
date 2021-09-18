@@ -34,15 +34,15 @@ class Director:
                         self.quit()
  
                 # Detect events
-                print("Called on event")
+                
                 self.scene.on_event(event)
  
             # Update scene
-            print("Called on update")
+            
             self.scene.on_update()
  
             # Draw the screen
-            print("Called on draw")
+            
             self.scene.on_draw(self.screen)
             pygame.display.flip()
  

@@ -39,18 +39,25 @@ class BattleScene(Scene):
         self.zone_indicator = pygame.image.load("img/wbsprite.png").convert()
         self.zone_indicator.set_colorkey((0, 0, 0))
 
-        
-        self.smage = Sprite('mage', (4, 7), (4, 6), [self.mage])
-
-        self.swolf = Sprite('wolf', (2, 3), (3, 3), [self.wolf])
-
         #Ready the tilemap
-        tilemap = TileMap(13, 13, 'map_full.txt')
-        maps = tilemap.make_full_map()
-        full_map_list = maps[0]
-        isometric_map_list = maps[1]
-        self.map_data = full_map_list
-        self.isometric_map_data = isometric_map_list
+        f = open('map_full.txt')
+        read_map = [[int(c) for c in row] for row in f.read().split('\n')]
+        f.close()
+        map = []
+        # isometricmap = []
+        for y, row in enumerate(read_map):
+            for x, index in enumerate(row):
+                map.append(Tile(x, y))
+                # xi, yi = projection.isometricprojection(x, y, 32, 16, 0, 0)
+                # isometricmap.append(Tile(xi, yi))
+        # isometric_map_list = maps[1]
+        # self.isometric_map_data = isometric_map_list
+        self.tilemap = TileMap(13, 13, map)
+
+        self.smage = Sprite('mage', (4, 7), (4, 6), self.tilemap, [self.mage])
+
+        self.swolf = Sprite('wolf', (2, 3), (3, 3), self.tilemap, [self.wolf])
+
 
         # Background sound
         pygame.mixer.music.load('The Hero Approaches.wav')
@@ -62,6 +69,7 @@ class BattleScene(Scene):
         self.x_index = self.x_index - 1
         self.x_index = projection.restrict(self.x_index, 0, 13)
         self.y_index = projection.restrict(self.y_index, 0, 13)
+        current_tile = self.tilemap.get_tile_in_coor(self.x_index, self.y_index)
         # print(self.x_index, end = ", ")
         # print(self.y_index)
         x_iso, y_iso = projection.isometricprojection(self.x_index, self.y_index, 32, 16, (DSX / 2), (DSY / 2))
@@ -131,7 +139,7 @@ class BattleScene(Scene):
         screen.fill((0,0,0))
         self.disp.fill((0,0,0))
         
-        for tile in self.map_data:
+        for tile in self.tilemap.map:
             if tile.xcoor == self.x_index and tile.ycoor == self.y_index:
                 # disp.blit(selected_tile, ((DSX / 2), (DSX / 2) + self.x_index * 16 - self.y_index * 16, (DSX / 2), (DSX / 2) + self.x_index * 8 + self.y_index * 8))
                 self.disp.blit(self.selected_tile, (projection.isometricprojection(self.x_index, self.y_index, 32, 16, (DSX / 2), (DSY / 2))))
@@ -146,7 +154,8 @@ class BattleScene(Scene):
 
         # disp.blit(mage, projection.get_isometric_tile_center(4, 7, 32, 16, (DSX / 2), (DSY / 2)))
 
-        self.smage.draw_sprite(self.disp,0)
+        self.smage.draw_sprite(self.disp, 0)
+        # self.map_data
         self.swolf.draw_sprite(self.disp, 0)
         
         screen.blit(pygame.transform.scale(self.disp, screen.get_size()), (0, 0), self.camera)
