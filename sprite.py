@@ -1,11 +1,10 @@
-
+from enum import Enum
 from typing import Tuple
 
 import pygame
+
 import projection
-from tile import Tile
 from tilemap import TileMap
-from enum import Enum
 
 
 class Direction(Enum):
@@ -89,18 +88,6 @@ class Sprite:
         self.facing = (new_pos[0] + l[0], new_pos[1] + l[1])
 
         self.allowed_facings = self.get_allowed_facings()
-
-    # def change_facing(self):
-    #     print(self.allowed_facings.index(self.facing))
-    #     print("vs.")
-    #     print(self.amount_of_allowed_facings)
-    #     index = self.allowed_facings.index(self.facing)
-    #     index += 1
-    #     if index >= self.amount_of_allowed_facings:
-    #         self.facing = self.allowed_facings[0]
-    #         index = 0
-    #     else:
-    #         self.facing = self.allowed_facings[index]
     
     def get_allowed_facings(self):
         return projection.get_orthogonal_adjecant_squares(self.pos[0], self.pos[1], 14)

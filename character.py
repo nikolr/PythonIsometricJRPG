@@ -6,11 +6,12 @@ from ability import Ability
 
 class Character:
 
-    def __init__(self, name: str, stat_collection: StatCollection, sprite: Sprite, counter = 10, abilities: list[Ability] = []):
+    def __init__(self, name: str, stat_collection: StatCollection, sprite: Sprite, counter = 10, innate_counter = 10, abilities: list[Ability] = []):
         self.name = name
         self.stat_collection = stat_collection
         self.sprite = sprite
         self.counter = counter
+        self.innate_counter = innate_counter
         self.abilities = abilities
         self.alive = True
     
@@ -21,6 +22,9 @@ class Character:
 
     def gain_ability(self, ability: Ability):
         self.abilities.append(ability)
+
+    def __str__(self) -> str:
+        return self.name
 
     def print_info(self):
         print(f"Name: {self.name}")
