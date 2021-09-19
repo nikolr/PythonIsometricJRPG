@@ -1,3 +1,5 @@
+from config import SCREEN_SIZE_X, SCREEN_SIZE_Y
+# import pygame_gui
 class Scene:
      """Represents a scene of the game.
  
@@ -7,6 +9,8 @@ class Scene:
  
      def __init__(self, director):
         self.director = director
+        self.state_stack = []
+      #   self.manager = pygame_gui.UIManager((SCREEN_SIZE_X, SCREEN_SIZE_Y))
  
      def on_update(self):
         "Called from the director and defined on the subclass."

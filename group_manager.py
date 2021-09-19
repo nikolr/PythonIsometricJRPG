@@ -12,45 +12,50 @@ class GroupManager:
         self.character_queue = deque()
         self.current_counters = [None] * len(participants)
         self.counter_history = [None] * len(participants)
+        # self.current_character = None
         self.step_indicator = False
         self.reset = False
         self.first_reset_indicator = False
     #Define functions for manipulating queue
     def determine_turn_queue(self):
         self.character_queue.clear()
-        
+        self.step_indicator = False
+        self.first_reset_indicator = False
         if len(self.character_queue) >= 10:
             print("Multiple characters ticked to 0 on the same iteration") 
         else:
             while len(self.character_queue) < 10:
-                print("Entering tick and add to queue")
+                for a in self.participants:
+                    print(f"{a.name} {a.counter}")
                 self.tick_and_add_to_queue(self.participants)
         self.counter_history.clear()
         for i in range(len(self.participants)):
             self.participants[i].counter = self.current_counters[i]
             self.counter_history.append(self.current_counters[i])
             i += 1
+        self.print_queue()
 
     def tick_and_add_to_queue(self, part: list[Character]):
         for character in part:
-            print(character)
             if self.tick(character):
                 self.character_queue.append(character)
                 print(f"Added {character} to character_queue")
                 if self.step_indicator == False and self.first_reset_indicator == True:
                     for i in range(len(part)):
                         self.current_counters[i] = part[i].counter
+                        i += 1
                     self.step_indicator = True
+        
 
     def tick(self, character: Character):
-        reset = False
+        self.reset = False
         character.counter -= 1
         if character.counter <= 0:
             character.counter = character.innate_counter
             self.reset = True
             self.first_reset_indicator = True
             return self.reset
-        return reset
+        return self.reset
 
     def get_next_character(self):
         return self.character_queue.popleft()

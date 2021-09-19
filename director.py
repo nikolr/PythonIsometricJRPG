@@ -1,4 +1,5 @@
 # Modules
+import pygame_gui
 from config import SCREEN_SIZE_X, SCREEN_SIZE_Y
 import pygame, sys
  
@@ -18,12 +19,19 @@ class Director:
         self.scene = None
         self.quit_flag = False
         self.clock = pygame.time.Clock()
+        self.time_delta = None
+        
+        #UImanager
+        # self.manager = pygame_gui.UIManager((SCREEN_SIZE_X, SCREEN_SIZE_Y))
+
+        
  
     def loop(self):
         "Main game loop."
  
         while not self.quit_flag:
-            time = self.clock.tick(60)
+            # self.time_delta = self.clock.tick(60)/1000.0
+            self.time_delta = self.clock.tick(60)
  
             # Exit events
             for event in pygame.event.get():
@@ -34,16 +42,18 @@ class Director:
                         self.quit()
  
                 # Detect events
-                
                 self.scene.on_event(event)
+                # self.scene.manager.process_events(event)
  
             # Update scene
             
             self.scene.on_update()
+            # self.scene.manager.update(self.time_delta)
  
             # Draw the screen
             
             self.scene.on_draw(self.screen)
+            # self.scene.manager.draw_ui(self.screen)
             pygame.display.flip()
  
     def change_scene(self, scene):

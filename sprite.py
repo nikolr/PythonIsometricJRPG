@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import IntEnum
 from typing import Tuple
 
 import pygame
@@ -7,11 +7,11 @@ import projection
 from tilemap import TileMap
 
 
-class Direction(Enum):
-    UP = 1
-    RIGHT = 2
-    DOWN = 3
-    LEFT = 4
+class Direction(IntEnum):
+    UP = 0
+    RIGHT = 1
+    DOWN = 2
+    LEFT = 3
 
 
 
@@ -27,6 +27,7 @@ class Sprite:
         self.tile.occupied = True
         self.tile.occupier = self.name
         self.facing_tile = map.get_tile_in_coor(facing[0], facing[1])
+        self.offset = self.get_direction()
         self.allowed_facings = self.get_allowed_facings()
         self.amount_of_allowed_facings = len(self.allowed_facings)
     
@@ -92,5 +93,18 @@ class Sprite:
     def get_allowed_facings(self):
         return projection.get_orthogonal_adjecant_squares(self.pos[0], self.pos[1], 14)
 
-    def draw_sprite(self, display: pygame.Surface, img: int):
-        display.blit(self.img_set[img], projection.get_isometric_tile_center(self.pos[0], self.pos[1], 32, 16, (display.get_size()[0] / 2), (display.get_size()[1] / 2)))
+    def get_direction(self):
+        off = (self.pos[0] - self.facing[0], self.pos[1] - self.facing[1])
+        if off == (0,-1):
+            print(int(Direction.UP))
+            return int(Direction.UP)
+        if off == (1,0):
+            return int(Direction.RIGHT)    
+        if off == (0,1):
+            return int(Direction.DOWN)
+        if off == (-1,0):
+            return int(Direction.LEFT)
+
+    def draw_sprite(self, display: pygame.Surface):
+        # display.blit(self.img_set[self.get_direction()], projection.get_isometric_tile_center(self.pos[0], self.pos[1], 32, 16, (display.get_size()[0] / 2), (display.get_size()[1] / 2)))
+        display.blit(self.img_set[0], projection.get_isometric_tile_center(self.pos[0], self.pos[1], 32, 16, (display.get_size()[0] / 2), (display.get_size()[1] / 2)))

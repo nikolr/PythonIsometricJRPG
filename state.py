@@ -1,16 +1,22 @@
-from abc import ABC, abstractmethod
+from director import Director
 
-class State(ABC):
-    @abstractmethod
+
+class State():
+    def __init__(self, director: Director) -> None:
+        self.director = director
+        self.prev_state = None
+
+
     def enter(self):
         pass
 
-    @abstractmethod
     def exit(self):
         pass
 
-    @abstractmethod
-    def handle(self):
+    def update(self):
+        pass
+
+    def render(self, screen):
         pass
 
 class BattleSetup(State):

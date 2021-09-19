@@ -3,6 +3,7 @@ from scene import Scene
 from pygame.sprite import Sprite
 from config import *
 import pygame, sys, time, random
+# import pygame_gui
 
 from scene import Scene
 
@@ -25,18 +26,26 @@ from attribute_id import AttributeId
 #MAKE MORE MODULAR
 
 class BattleScene(Scene):
+    
     def __init__(self, director):
         Scene.__init__(self, director)
         self.camera = director.screen.get_rect()
         self.disp = pygame.Surface((DSX, DSY)).convert()
         self.x_index = (0, 0)
         self.x_index = (0, 0)
+
         #Setup disp
-        
         disp_rect = self.disp.get_rect()
+
         #Ready sprites
-        self.mage = pygame.image.load("img/mage1.png").convert()
-        self.mage.set_colorkey((0, 0, 0))
+        self.mage_up = pygame.image.load("img/mage_up.png").convert()
+        self.mage_up.set_colorkey((0, 0, 0))
+        self.mage_right = pygame.image.load("img/mage_right.png").convert()
+        self.mage_right.set_colorkey((0, 0, 0))
+        self.mage_down = pygame.image.load("img/mage_down.png").convert()
+        self.mage_down.set_colorkey((0, 0, 0))
+        self.mage_left = pygame.image.load("img/mage_left.png").convert()
+        self.mage_left.set_colorkey((0, 0, 0))
         self.wolf = pygame.image.load("img/wolf.png").convert()
         self.wolf.set_colorkey((0, 0, 0))
         self.warrior = pygame.image.load("img/warrior.png").convert()
@@ -63,7 +72,7 @@ class BattleScene(Scene):
         self.tilemap = TileMap(13, 13, map)
 
         #Initialize sprites and characters
-        self.smage = Sprite('mage', (4, 7), (4, 6), self.tilemap, [self.mage])
+        self.smage = Sprite('mage', (4, 7), (4, 6), self.tilemap, [self.mage_down, self.mage_right, self.mage_up , self.mage_left])
         wmhp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         wms = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
         wma = Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
@@ -71,7 +80,7 @@ class BattleScene(Scene):
         sc.add_to_dict(AttributeId.HP, wmhp)
         sc.add_to_dict(AttributeId.STRENGTH, wms)
         sc.add_to_dict(AttributeId.AGILITY, wma)
-        cmage = Character('WhiteMage', sc, self.smage, counter = 10)
+        cmage = Character('WhiteMage', sc, self.smage, counter = 10, innate_counter= 14)
         self.swolf = Sprite('wolf', (2, 3), (3, 3), self.tilemap, [self.wolf])
         whp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         ws = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
@@ -80,22 +89,57 @@ class BattleScene(Scene):
         scw.add_to_dict(AttributeId.HP, whp)
         scw.add_to_dict(AttributeId.STRENGTH, ws)
         scw.add_to_dict(AttributeId.AGILITY, wa)
-        cwolf = Character('Wolf', scw, self.swolf, counter = 5)
+        cwolf = Character('Wolf', scw, self.swolf, counter = 13, innate_counter= 20)
 
         self.swarrior = Sprite('warrior', (8, 7), (8, 6), self.tilemap, [self.warrior])
+        ahp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
+        ams = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
+        ama = Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
+        sca = StatCollection()
+        sca.add_to_dict(AttributeId.HP, ahp)
+        sca.add_to_dict(AttributeId.STRENGTH, ams)
+        sca.add_to_dict(AttributeId.AGILITY, ama)
+        cwar = Character('Warrior', sca, self.swarrior, counter = 14, innate_counter= 8)
 
         self.sthief = Sprite('thief', (11, 7), (11, 6), self.tilemap, [self.thief])
+        thp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
+        ts = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
+        ta = Attribute(AttributeId.AGILITY, 20, 'Health', 'Hit points until down')
+        sct = StatCollection()
+        sct.add_to_dict(AttributeId.HP, thp)
+        sct.add_to_dict(AttributeId.STRENGTH, ts)
+        sct.add_to_dict(AttributeId.AGILITY, ta)
+        cthief = Character('Thief', sct, self.sthief, counter = 5, innate_counter= 6)
+
+        
+        
 
         self.sprites = [self.smage, self.swarrior, self.swolf, self.sthief]
+        # self.sprites = [self.smage]
 
         # Background sound
         pygame.mixer.music.load('The Hero Approaches.wav')
         mixer.music.play(loops=-1)
 
-        #TODO TEST RIGOROUSLY
-        group_manager = GroupManager([cmage, cwolf])
-        group_manager.determine_turn_queue()
 
+
+
+        #TODO TEST RIGOROUSLY
+        self.group_manager = GroupManager([cmage, cwolf, cwar, cthief])
+        self.group_manager.determine_turn_queue()
+        self.current_character = self.group_manager.get_next_character()
+
+
+        #UImanager
+        # self.manager = pygame_gui.UIManager((SCREEN_SIZE_X, SCREEN_SIZE_Y))
+        # self.turn_order_panel = pygame_gui.elements.UIPanel(relative_rect=pygame.Rect((0, 0), (100, 500)), starting_layer_height=1, manager = self.manager)
+        # self.label_list = []
+        # first_in_queue = pygame_gui.elements.UILabel(relative_rect=pygame.Rect((0, 0), (100, 50)), container= self.turn_order_panel, text=f"{self.group_manager.character_queue[0]}",manager=self.manager)
+        # second_in_queue = pygame_gui.elements.UILabel(relative_rect=pygame.Rect((0, 50), (100, 50)), container= self.turn_order_panel, text=f"{self.group_manager.character_queue[1]}",manager=self.manager)
+        # for i in range(len(self.group_manager.character_queue)):
+        #     label_list.append(pygame_gui.elements.UILabel(relative_rect=pygame.Rect((0, i*20), (100, 25)), container= self.turn_order_panel, text=f"{self.group_manager.character_queue[i]}",manager=self.manager))
+
+        #character_in_queue = pygame_gui.elements.UILabel(relative_rect=pygame.Rect((0, 0), (100, 50)), container= turn_order_panel, text=f"{self.current_character}",manager=self.manager)
 
     def on_update(self):
         #Keeps track where the mouse is pointing and converts it into isometric indices
@@ -128,24 +172,32 @@ class BattleScene(Scene):
         if event.type == KEYDOWN:
             if event.key == pygame.K_w:
                 print("Pressed w")
-                self.smage.change_facing(Direction.UP)
-                self.smage.move_a_square()
+                self.current_character.sprite.change_facing(Direction.UP)
+                self.current_character.sprite.move_a_square()
+                self.group_manager.determine_turn_queue()
+                self.current_character = self.group_manager.get_next_character()
             if event.key == K_d:
-                self.smage.change_facing(Direction.RIGHT)
-                self.smage.move_a_square()
+                self.current_character.sprite.change_facing(Direction.RIGHT)
+                self.current_character.sprite.move_a_square()
+                self.group_manager.determine_turn_queue()
+                self.current_character = self.group_manager.get_next_character()
             if event.key == K_s:
-                self.smage.change_facing(Direction.DOWN)
-                self.smage.move_a_square()
+                self.current_character.sprite.change_facing(Direction.DOWN)
+                self.current_character.sprite.move_a_square()
+                self.group_manager.determine_turn_queue()
+                self.current_character = self.group_manager.get_next_character()
             if event.key == K_a:
-                self.smage.change_facing(Direction.LEFT)
-                self.smage.move_a_square()
+                self.current_character.sprite.change_facing(Direction.LEFT)
+                self.current_character.sprite.move_a_square()
+                self.group_manager.determine_turn_queue()
+                self.current_character = self.group_manager.get_next_character()
             if event.key == K_SPACE:
                 self.smage.move_a_square()
         if event.type == MOUSEBUTTONDOWN and event.button == 1:
             self.smage.set_facing((self.x_index, self.y_index))
         if event.type == MOUSEBUTTONDOWN and event.button == 3:
             self.smage.set_pos((self.x_index, self.y_index))
-
+        
             
 
 
@@ -166,9 +218,13 @@ class BattleScene(Scene):
             #If there exists a sprite on tile, it is drawn there. Important for image layering
             for sprite in self.sprites:
                 if tile.get_tile_coor() == sprite.pos:
-                    sprite.draw_sprite(self.disp, 0)
-
+                    sprite.draw_sprite(self.disp)
+        # self.label_list.append(pygame_gui.elements.UILabel(relative_rect=pygame.Rect((0, 0), (100, 25)), container= self.turn_order_panel, text=f"{self.current_character}",manager=self.manager))
+        # for i in range(len(self.group_manager.character_queue)):
+        #     self.label_list.append(pygame_gui.elements.UILabel(relative_rect=pygame.Rect((0, (i+1)*20), (100, 25)), container= self.turn_order_panel, text=f"{self.group_manager.character_queue[i]}",manager=self.manager))
         screen.blit(pygame.transform.scale(self.disp, screen.get_size()), (0, 0), self.camera)
+
+
 
 
 
