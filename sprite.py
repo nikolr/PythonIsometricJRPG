@@ -67,19 +67,19 @@ class Sprite:
         if direction == Direction.UP:
             self.facing = (self.pos[0], self.pos[1] - 1)
             self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
-            print(f"FACING {direction}")
+            # print(f"FACING {direction}")
         elif direction == Direction.RIGHT:
             self.facing = (self.pos[0] + 1, self.pos[1])
             self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
-            print(f"FACING {direction}")
+            # print(f"FACING {direction}")
         elif direction == Direction.DOWN:
             self.facing = (self.pos[0], self.pos[1] + 1)
             self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
-            print(f"FACING {direction}")
+            # print(f"FACING {direction}")
         elif direction == Direction.LEFT:
             self.facing = (self.pos[0] - 1, self.pos[1])
             self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
-            print(f"FACING {direction}")
+            # print(f"FACING {direction}")
     
     def set_pos(self, new_pos: Tuple[int, int]):
         l = [self.facing[0], self.facing[1]]
@@ -96,7 +96,6 @@ class Sprite:
     def get_direction(self):
         off = (self.pos[0] - self.facing[0], self.pos[1] - self.facing[1])
         if off == (0,-1):
-            print(int(Direction.UP))
             return int(Direction.UP)
         if off == (1,0):
             return int(Direction.RIGHT)    

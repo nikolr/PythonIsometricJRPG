@@ -141,6 +141,9 @@ class BattleScene(Scene):
 
         #character_in_queue = pygame_gui.elements.UILabel(relative_rect=pygame.Rect((0, 0), (100, 50)), container= turn_order_panel, text=f"{self.current_character}",manager=self.manager)
 
+        #Panel font. Probably will make this a class
+        self.font = pygame.font.Font("font/PressStart2P-vaV7.ttf", 10)
+
     def on_update(self):
         #Keeps track where the mouse is pointing and converts it into isometric indices
         x_world, y_world = pygame.mouse.get_pos()
@@ -171,7 +174,6 @@ class BattleScene(Scene):
     def on_event(self, event):
         if event.type == KEYDOWN:
             if event.key == pygame.K_w:
-                print("Pressed w")
                 self.current_character.sprite.change_facing(Direction.UP)
                 self.current_character.sprite.move_a_square()
                 self.group_manager.determine_turn_queue()
@@ -222,7 +224,18 @@ class BattleScene(Scene):
         # self.label_list.append(pygame_gui.elements.UILabel(relative_rect=pygame.Rect((0, 0), (100, 25)), container= self.turn_order_panel, text=f"{self.current_character}",manager=self.manager))
         # for i in range(len(self.group_manager.character_queue)):
         #     self.label_list.append(pygame_gui.elements.UILabel(relative_rect=pygame.Rect((0, (i+1)*20), (100, 25)), container= self.turn_order_panel, text=f"{self.group_manager.character_queue[i]}",manager=self.manager))
+        #Panel 
+        # turn_queue = pygame.Rect([0 + self.camera.x/2, 0 + self.camera.y/2 ,50, 200])
+        turn_queue = pygame.Rect([screen.get_rect().topleft[0] , screen.get_rect().topleft[1] ,120, 235])
+
+
         screen.blit(pygame.transform.scale(self.disp, screen.get_size()), (0, 0), self.camera)
+
+        pygame.draw.rect(screen,(100, 100, 100), turn_queue)
+        screen.blit(self.font.render("Turn Order:", True, (255, 255, 255)), (0, 10))
+        screen.blit(self.font.render(self.current_character.name, True, (255, 255, 255)), (0, 30))
+        for i in range(len(self.group_manager.character_queue)):
+            screen.blit(self.font.render(self.group_manager.character_queue[i].name, True, (255, 255, 255)), (0, 50+(i*20)))
 
 
 

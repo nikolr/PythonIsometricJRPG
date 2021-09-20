@@ -25,21 +25,21 @@ class GroupManager:
             print("Multiple characters ticked to 0 on the same iteration") 
         else:
             while len(self.character_queue) < 10:
-                for a in self.participants:
-                    print(f"{a.name} {a.counter}")
+                # for a in self.participants:
+                #     print(f"{a.name} {a.counter}")
                 self.tick_and_add_to_queue(self.participants)
         self.counter_history.clear()
         for i in range(len(self.participants)):
             self.participants[i].counter = self.current_counters[i]
             self.counter_history.append(self.current_counters[i])
             i += 1
-        self.print_queue()
+        # self.print_queue()
 
     def tick_and_add_to_queue(self, part: list[Character]):
         for character in part:
             if self.tick(character):
                 self.character_queue.append(character)
-                print(f"Added {character} to character_queue")
+                # print(f"Added {character} to character_queue")
                 if self.step_indicator == False and self.first_reset_indicator == True:
                     for i in range(len(part)):
                         self.current_counters[i] = part[i].counter
