@@ -1,3 +1,4 @@
+from ability import Ability
 from enum import IntEnum
 from typing import Tuple
 
@@ -107,3 +108,5 @@ class Sprite:
     def draw_sprite(self, display: pygame.Surface):
         # display.blit(self.img_set[self.get_direction()], projection.get_isometric_tile_center(self.pos[0], self.pos[1], 32, 16, (display.get_size()[0] / 2), (display.get_size()[1] / 2)))
         display.blit(self.img_set[0], projection.get_isometric_tile_center(self.pos[0], self.pos[1], 32, 16, (display.get_size()[0] / 2), (display.get_size()[1] / 2)))
+
+

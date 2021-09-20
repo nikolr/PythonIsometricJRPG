@@ -1,18 +1,17 @@
 from attribute_modifier import AttributeModType, AttributeModifier
 from attribute_id import AttributeId
-from sprite import Sprite
 from stat_collection import StatCollection
-from ability import Ability
+
 
 class Character:
 
-    def __init__(self, name: str, stat_collection: StatCollection, sprite: Sprite, counter = 10, innate_counter = 10, abilities: list[Ability] = []):
+    def __init__(self, name: str, stat_collection: StatCollection, sprite, counter = 10, innate_counter = 10):
         self.name = name
         self.stat_collection = stat_collection
         self.sprite = sprite
         self.counter = counter
         self.innate_counter = innate_counter
-        self.abilities = abilities
+        self.abilities = []
         self.alive = True
     
 
@@ -20,7 +19,9 @@ class Character:
         dmg = AttributeModifier(AttributeModType.FLAT, AttributeId.HP, damage, 1)
         self.stat_collection.get_attribute(AttributeId.HP).add_modifier(dmg)
 
-    def gain_ability(self, ability: Ability):
+
+
+    def gain_ability(self, ability):
         self.abilities.append(ability)
 
     def __str__(self) -> str:

@@ -1,3 +1,7 @@
+from target_state import TargetState
+from turn_state import TurnState
+from state_machine import StateMachine
+from face import Face
 from group_manager import GroupManager
 from scene import Scene
 from pygame.sprite import Sprite
@@ -20,6 +24,7 @@ from character import Character
 from attribute_modifier import AttributeModType, AttributeModifier
 from stat_collection import StatCollection
 from attribute_id import AttributeId
+import ability
 
 #TODO FIX EVENTS
 #CLEAN
@@ -31,6 +36,8 @@ class BattleScene(Scene):
         Scene.__init__(self, director)
         self.camera = director.screen.get_rect()
         self.disp = pygame.Surface((DSX, DSY)).convert()
+        self.x_world = (0, 0)
+        self.y_world = (0, 0)
         self.x_index = (0, 0)
         self.x_index = (0, 0)
 
@@ -80,7 +87,7 @@ class BattleScene(Scene):
         sc.add_to_dict(AttributeId.HP, wmhp)
         sc.add_to_dict(AttributeId.STRENGTH, wms)
         sc.add_to_dict(AttributeId.AGILITY, wma)
-        cmage = Character('WhiteMage', sc, self.smage, counter = 10, innate_counter= 14)
+        self.cmage = Character('WhiteMage', sc, self.smage, counter = 10, innate_counter= 14)
         self.swolf = Sprite('wolf', (2, 3), (3, 3), self.tilemap, [self.wolf])
         whp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         ws = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
@@ -89,7 +96,7 @@ class BattleScene(Scene):
         scw.add_to_dict(AttributeId.HP, whp)
         scw.add_to_dict(AttributeId.STRENGTH, ws)
         scw.add_to_dict(AttributeId.AGILITY, wa)
-        cwolf = Character('Wolf', scw, self.swolf, counter = 13, innate_counter= 20)
+        self.cwolf = Character('Wolf', scw, self.swolf, counter = 13, innate_counter= 20)
 
         self.swarrior = Sprite('warrior', (8, 7), (8, 6), self.tilemap, [self.warrior])
         ahp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
@@ -99,7 +106,7 @@ class BattleScene(Scene):
         sca.add_to_dict(AttributeId.HP, ahp)
         sca.add_to_dict(AttributeId.STRENGTH, ams)
         sca.add_to_dict(AttributeId.AGILITY, ama)
-        cwar = Character('Warrior', sca, self.swarrior, counter = 14, innate_counter= 8)
+        self.cwar = Character('Warrior', sca, self.swarrior, counter = 14, innate_counter= 8)
 
         self.sthief = Sprite('thief', (11, 7), (11, 6), self.tilemap, [self.thief])
         thp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
@@ -109,9 +116,28 @@ class BattleScene(Scene):
         sct.add_to_dict(AttributeId.HP, thp)
         sct.add_to_dict(AttributeId.STRENGTH, ts)
         sct.add_to_dict(AttributeId.AGILITY, ta)
-        cthief = Character('Thief', sct, self.sthief, counter = 5, innate_counter= 6)
+        self.cthief = Character('Thief', sct, self.sthief, counter = 5, innate_counter= 6)
 
-        
+        self.attack = ability.Ability("Slash", 5, 1, ability.TargetingType.SINGLE, 1, self.cwar)
+        self.shoot = ability.Ability("Shoot", 3, 1, ability.TargetingType.SINGLE, 3, self.cwar)
+        self.face = Face("Move", 0, 1, ability.TargetingType.SINGLE, 1, self.cwar)
+
+        self.cwar.gain_ability(self.face)
+        self.cwar.gain_ability(self.attack)
+        self.cwar.gain_ability(self.shoot)
+
+        self.cmage.gain_ability(self.face)
+        self.cmage.gain_ability(self.attack)
+        self.cmage.gain_ability(self.shoot)
+
+        self.cthief.gain_ability(self.face)
+        self.cthief.gain_ability(self.attack)
+        self.cthief.gain_ability(self.shoot)
+
+        self.cwolf.gain_ability(self.face)
+        self.cwolf.gain_ability(self.attack)
+        self.cwolf.gain_ability(self.shoot)
+
         
 
         self.sprites = [self.smage, self.swarrior, self.swolf, self.sthief]
@@ -125,9 +151,15 @@ class BattleScene(Scene):
 
 
         #TODO TEST RIGOROUSLY
-        self.group_manager = GroupManager([cmage, cwolf, cwar, cthief])
+        self.group_manager = GroupManager([self.cmage, self.cwolf, self.cwar, self.cthief])
         self.group_manager.determine_turn_queue()
         self.current_character = self.group_manager.get_next_character()
+        self.target = None
+        self.turn_state = TurnState(self.director, self)
+        self.target_state = TargetState(self.director, self)
+        self.state_machine = StateMachine(self.turn_state)
+
+        self.selected_ability = None
 
 
         #UImanager
@@ -144,10 +176,11 @@ class BattleScene(Scene):
         #Panel font. Probably will make this a class
         self.font = pygame.font.Font("font/PressStart2P-vaV7.ttf", 10)
 
+
     def on_update(self):
         #Keeps track where the mouse is pointing and converts it into isometric indices
-        x_world, y_world = pygame.mouse.get_pos()
-        self.x_index, self.y_index = projection.reverse_isometricprojection(x_world - (DSX - self.camera.x), y_world - (DSY - self.camera.y), 64, 32)
+        self.x_world, self.y_world = pygame.mouse.get_pos()
+        self.x_index, self.y_index = projection.reverse_isometricprojection(self.x_world - (DSX - self.camera.x), self.y_world - (DSY - self.camera.y), 64, 32)
         self.x_index = self.x_index - 1
         #Restric to map size
         self.x_index = projection.restrict(self.x_index, 0, 13)
@@ -170,6 +203,10 @@ class BattleScene(Scene):
 
         if keys[pygame.K_DOWN]:
             self.camera.y += 15
+
+        self.state_machine.current_state.update()
+
+
     #Gets event passed as an argument by director loop. Identifies it and acts accordingly. Listens only to events allowed by current state. Still working on that
     def on_event(self, event):
         if event.type == KEYDOWN:
@@ -194,12 +231,21 @@ class BattleScene(Scene):
                 self.group_manager.determine_turn_queue()
                 self.current_character = self.group_manager.get_next_character()
             if event.key == K_SPACE:
-                self.smage.move_a_square()
+                #This functionality on button click. Stores ability and during targetstate get target. Then perform damage calc on targets and check end turn and end battle
+                self.selected_ability = self.current_character.abilities[1]
+                self.state_machine.change_state(self.target_state)
         if event.type == MOUSEBUTTONDOWN and event.button == 1:
-            self.smage.set_facing((self.x_index, self.y_index))
+            
+            # self.smage.set_facing((self.x_index, self.y_index))
+            pass
         if event.type == MOUSEBUTTONDOWN and event.button == 3:
             self.smage.set_pos((self.x_index, self.y_index))
         
+        if isinstance(self.state_machine.current_state, TurnState):
+            for btn in self.state_machine.current_state.ability_buttons.values():
+                if btn.clicked((self.x_world, self.y_world), event):
+                    self.selected_ability = btn.ability
+                    self.state_machine.change_state(self.target_state)
             
 
 
@@ -217,25 +263,50 @@ class BattleScene(Scene):
             # #Loops through the current tiles adjecant tiles and blits a zone indicator tile on each of them
             # for adj in projection.get_adjecant_squares(self.x_index, self.y_index, 13):
             #     self.disp.blit(self.zone_indicator, projection.isometricprojection(adj[0], adj[1], 32, 16, (DSX / 2), (DSY / 2)))
+        
+        if isinstance(self.state_machine.current_state, TargetState):
+            self.state_machine.current_state.render()
+
+        # Draw range indicator demo
+        # self.cwar.abilities[0].draw_range_indicator(self.disp, self.cwar.sprite.tile)
+        
+        for tile in self.tilemap.map:
             #If there exists a sprite on tile, it is drawn there. Important for image layering
             for sprite in self.sprites:
                 if tile.get_tile_coor() == sprite.pos:
                     sprite.draw_sprite(self.disp)
+
+
+
         # self.label_list.append(pygame_gui.elements.UILabel(relative_rect=pygame.Rect((0, 0), (100, 25)), container= self.turn_order_panel, text=f"{self.current_character}",manager=self.manager))
         # for i in range(len(self.group_manager.character_queue)):
         #     self.label_list.append(pygame_gui.elements.UILabel(relative_rect=pygame.Rect((0, (i+1)*20), (100, 25)), container= self.turn_order_panel, text=f"{self.group_manager.character_queue[i]}",manager=self.manager))
         #Panel 
         # turn_queue = pygame.Rect([0 + self.camera.x/2, 0 + self.camera.y/2 ,50, 200])
-        turn_queue = pygame.Rect([screen.get_rect().topleft[0] , screen.get_rect().topleft[1] ,120, 235])
-
-
+        
         screen.blit(pygame.transform.scale(self.disp, screen.get_size()), (0, 0), self.camera)
 
+        #Disgusting. Back to the drawing board
+        if isinstance(self.state_machine.current_state, TurnState):
+            self.state_machine.current_state.render()
+
+        #Create containers for ui elements. Move out of the loop
+        turn_queue = pygame.Rect([screen.get_rect().topleft[0] , screen.get_rect().topleft[1] ,120, 235])
+        # ability_panel = pygame.Rect([screen.get_rect().midleft[0], screen.get_rect().midleft[1] + 280, 450, 200])
+        # name_panel = pygame.Rect([screen.get_rect().midleft[0], screen.get_rect().midleft[1] + 280, 225, 50])
+
         pygame.draw.rect(screen,(100, 100, 100), turn_queue)
+
+        
+
+        # pygame.draw.rect(screen,(100, 100, 100), ability_panel)
+        # pygame.draw.rect(screen,(0, 0, 0), name_panel, 3)
         screen.blit(self.font.render("Turn Order:", True, (255, 255, 255)), (0, 10))
         screen.blit(self.font.render(self.current_character.name, True, (255, 255, 255)), (0, 30))
         for i in range(len(self.group_manager.character_queue)):
             screen.blit(self.font.render(self.group_manager.character_queue[i].name, True, (255, 255, 255)), (0, 50+(i*20)))
+
+
 
 
 

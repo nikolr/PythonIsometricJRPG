@@ -1,3 +1,4 @@
+from os import set_inheritable
 from group_manager import GroupManager
 from sprite import Sprite
 from tilemap import TileMap
@@ -11,10 +12,11 @@ from attribute import Attribute
 from attribute_modifier import AttributeModType, AttributeModifier
 from stat_collection import StatCollection
 from attribute_id import AttributeId
+import ability
 import pygame
 
-class TestGroupManager(unittest.TestCase):
-    def test_sprite(self):
+class TestAbility(unittest.TestCase):
+    def test_ability(self):
         #Ready sprites
         mage = pygame.image.load("img/mage1.png")
         mage.set_colorkey((0, 0, 0))
@@ -30,6 +32,7 @@ class TestGroupManager(unittest.TestCase):
             for x, index in enumerate(row):
                 map.append(Tile(x, y))
         tilemap = TileMap(13, 13, map)
+        win = pygame.display.set_mode((0,0))
         swar = Sprite('warrior', (2, 5), (2, 4), tilemap, [])
         ahp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         ams = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
@@ -39,7 +42,7 @@ class TestGroupManager(unittest.TestCase):
         sca.add_to_dict(AttributeId.STRENGTH, ams)
         sca.add_to_dict(AttributeId.AGILITY, ama)
         cwar = Character('Warrior', sca, swar, counter = 14, innate_counter= 8)
-        smage = Sprite('mage', (4, 7), (4, 6), tilemap, [])
+        smage = Sprite('mage', (0, 0), (1, 0), tilemap, [])
         wmhp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         wms = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
         wma = Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
@@ -66,10 +69,21 @@ class TestGroupManager(unittest.TestCase):
         scs.add_to_dict(AttributeId.STRENGTH, ss)
         scs.add_to_dict(AttributeId.AGILITY, sa)
         cshroom = Character('Shroom', scs, sshroom, counter = 22, innate_counter= 19)
-        gm = GroupManager([cmage, cwolf, cwar, cshroom])
-        gm.determine_turn_queue()
-        gm.print_queue()
+
+        attack = ability.Ability("Slash", 5, 1, ability.TargetingType.SINGLE, 1, cwar)
+        shoot = ability.Ability("Shoot", 3, 1, ability.TargetingType.SINGLE, 3, cwar)
+
+        cwar.gain_ability(attack)
+        cwar.gain_ability(shoot)
+
+        cmage.gain_ability(attack)
+        cmage.gain_ability(shoot)
+
+        self.assertEqual(cwar.abilities[0].get_tiles_in_range(cwar.sprite.tile), projection.get_orthogonal_adjecant_squares(cwar.sprite.tile.xcoor, cwar.sprite.tile.ycoor))
+        self.assertEqual(cwar.abilities[1].get_tiles_in_range(cwar.sprite.tile), [(3, 4), (3, 7), (4, 6), (0, 5), (2, 2), (1, 6), (2, 5), (1, 3), (2, 8), (4, 5), (3, 3), (3, 6), (2, 4), (0, 4), (2, 7), (1, 5), (3, 5), (4, 4), (5, 5), (1, 4), (0, 6), (2, 3), (1, 7), (2, 6)])
+        self.assertEqual(cmage.abilities[0].get_tiles_in_range(cmage.sprite.tile), projection.get_orthogonal_adjecant_squares(cmage.sprite.tile.xcoor, cmage.sprite.tile.ycoor))
+        self.assertEqual(cmage.abilities[1].get_tiles_in_range(cmage.sprite.tile),[(0, 1), (1, 2), (2, 1), (0, 0), (1, 1), (0, 3), (2, 0), (3, 0), (0, 2), (1, 0)])
+
 if __name__ == '__main__':
     unittest.main()       
-        
         

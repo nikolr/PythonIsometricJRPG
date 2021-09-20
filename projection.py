@@ -49,13 +49,13 @@ def get_adjecant_squares(x_index: int, y_index: int, tilemap_dimension: int) -> 
     return adjecant_tiles
 
 
-def get_orthogonal_adjecant_squares(x_index: int, y_index: int, tilemap_dimension: int) -> list[Tuple[int, int]]:
+def get_orthogonal_adjecant_squares(x_index: int, y_index: int, tilemap_dimension = 13) -> list[Tuple[int, int]]:
     """"Returns a list of orthogonal adjecant tile index tuple pairs"""
     adjecant_tiles = []
     for i in (-1, 1):
-        if x_index + i >= -1 and x_index + i <= tilemap_dimension:
+        if x_index + i > -1 and x_index + i <= tilemap_dimension:
             adjecant_tiles.append((x_index + i, y_index))
-        if y_index + i >= -1 and y_index + i <= tilemap_dimension:
+        if y_index + i > -1 and y_index + i <= tilemap_dimension:
             adjecant_tiles.append((x_index, y_index + i))
     return adjecant_tiles
 
