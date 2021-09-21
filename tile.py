@@ -13,6 +13,7 @@ class Tile:
         self.__ycoor = ycoor
         self.occupied = False
         self.occupier = None
+        self.occupier_character = None
         self.game_screen = game_screen
         self.tile_image = tile_image
         
@@ -39,6 +40,17 @@ class Tile:
         self.__xcoor = x
         self.__ycoor = y
 
+    # def is_over(self, pos):
+    #     #Pos is the mouse position or a tuple of (x,y) coordinates
+    #     if pos[0] > self.x and pos[0] < self.x + self.width:
+    #         if pos[1] > self.y and pos[1] < self.y + self.height:
+    #             return True
+    #     return False
+
+    # def clicked(self, pos, event):
+    #     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.is_over(pos):
+    #         return True
+    #     return False
 
     def get_tile_occupier(self):
         return self.occupier

@@ -1,3 +1,5 @@
+from move import Move
+from typing import Tuple
 from target_state import TargetState
 from turn_state import TurnState
 from state_machine import StateMachine
@@ -78,6 +80,10 @@ class BattleScene(Scene):
         #Create TileMap object. Used to store the list of tiles and provides functions to acess tiles given coordinates
         self.tilemap = TileMap(13, 13, map)
 
+        # #Test tile coordinates
+        # for tile in self.tilemap.map:
+        #     print(tile.get_tile_coor())
+
         #Initialize sprites and characters
         self.smage = Sprite('mage', (4, 7), (4, 6), self.tilemap, [self.mage_down, self.mage_right, self.mage_up , self.mage_left])
         wmhp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
@@ -87,7 +93,8 @@ class BattleScene(Scene):
         sc.add_to_dict(AttributeId.HP, wmhp)
         sc.add_to_dict(AttributeId.STRENGTH, wms)
         sc.add_to_dict(AttributeId.AGILITY, wma)
-        self.cmage = Character('WhiteMage', sc, self.smage, counter = 10, innate_counter= 14)
+        self.cmage = Character('WhiteMage', sc, self.smage, scene= self, counter = 10, innate_counter= 14)
+
         self.swolf = Sprite('wolf', (2, 3), (3, 3), self.tilemap, [self.wolf])
         whp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         ws = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
@@ -96,7 +103,7 @@ class BattleScene(Scene):
         scw.add_to_dict(AttributeId.HP, whp)
         scw.add_to_dict(AttributeId.STRENGTH, ws)
         scw.add_to_dict(AttributeId.AGILITY, wa)
-        self.cwolf = Character('Wolf', scw, self.swolf, counter = 13, innate_counter= 20)
+        self.cwolf = Character('Wolf', scw, self.swolf, playable= False, scene= self, counter = 13, innate_counter= 20)
 
         self.swarrior = Sprite('warrior', (8, 7), (8, 6), self.tilemap, [self.warrior])
         ahp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
@@ -106,7 +113,7 @@ class BattleScene(Scene):
         sca.add_to_dict(AttributeId.HP, ahp)
         sca.add_to_dict(AttributeId.STRENGTH, ams)
         sca.add_to_dict(AttributeId.AGILITY, ama)
-        self.cwar = Character('Warrior', sca, self.swarrior, counter = 14, innate_counter= 8)
+        self.cwar = Character('Warrior', sca, self.swarrior, scene= self, counter = 14, innate_counter= 8)
 
         self.sthief = Sprite('thief', (11, 7), (11, 6), self.tilemap, [self.thief])
         thp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
@@ -116,31 +123,36 @@ class BattleScene(Scene):
         sct.add_to_dict(AttributeId.HP, thp)
         sct.add_to_dict(AttributeId.STRENGTH, ts)
         sct.add_to_dict(AttributeId.AGILITY, ta)
-        self.cthief = Character('Thief', sct, self.sthief, counter = 5, innate_counter= 6)
+        self.cthief = Character('Thief', sct, self.sthief, scene= self, counter = 5, innate_counter= 6)
 
-        self.attack = ability.Ability("Slash", 5, 1, ability.TargetingType.SINGLE, 1, self.cwar)
-        self.shoot = ability.Ability("Shoot", 3, 1, ability.TargetingType.SINGLE, 3, self.cwar)
-        self.face = Face("Move", 0, 1, ability.TargetingType.SINGLE, 1, self.cwar)
+        self.attack = ability.Ability("Slash", 20, 2, 1, ability.TargetingType.SINGLE)
+        self.shoot = ability.Ability("Shoot", 100, 2, 3, ability.TargetingType.SINGLE)
+        self.face = Face("Face", 0, 1, 1, ability.TargetingType.FACE)
+        self.move = Move("Move", 0, 1, 0, ability.TargetingType.MOVE)
 
+        self.cwar.gain_ability(self.move)     
         self.cwar.gain_ability(self.face)
         self.cwar.gain_ability(self.attack)
         self.cwar.gain_ability(self.shoot)
 
+        self.cmage.gain_ability(self.move)
         self.cmage.gain_ability(self.face)
         self.cmage.gain_ability(self.attack)
         self.cmage.gain_ability(self.shoot)
 
+        self.cthief.gain_ability(self.move)
         self.cthief.gain_ability(self.face)
         self.cthief.gain_ability(self.attack)
         self.cthief.gain_ability(self.shoot)
 
+        self.cwolf.gain_ability(self.move)
         self.cwolf.gain_ability(self.face)
         self.cwolf.gain_ability(self.attack)
         self.cwolf.gain_ability(self.shoot)
 
         
 
-        self.sprites = [self.smage, self.swarrior, self.swolf, self.sthief]
+        self.characters = [self.cmage, self.cwar, self.cwolf, self.cthief]
         # self.sprites = [self.smage]
 
         # Background sound
@@ -160,6 +172,7 @@ class BattleScene(Scene):
         self.state_machine = StateMachine(self.turn_state)
 
         self.selected_ability = None
+        self.current_tile = None
 
 
         #UImanager
@@ -186,7 +199,7 @@ class BattleScene(Scene):
         self.x_index = projection.restrict(self.x_index, 0, 13)
         self.y_index = projection.restrict(self.y_index, 0, 13)
 
-        #current_tile = self.tilemap.get_tile_in_coor(self.x_index, self.y_index)
+        self.current_tile = self.tilemap.get_tile_in_coor(self.x_index, self.y_index)
         # print(self.x_index, end = ", ")
         # print(self.y_index)
     
@@ -209,6 +222,8 @@ class BattleScene(Scene):
 
     #Gets event passed as an argument by director loop. Identifies it and acts accordingly. Listens only to events allowed by current state. Still working on that
     def on_event(self, event):
+        #This part of the event functions events are tracked on every frame
+        ###########################################################################################################################################################
         if event.type == KEYDOWN:
             if event.key == pygame.K_w:
                 self.current_character.sprite.change_facing(Direction.UP)
@@ -238,17 +253,93 @@ class BattleScene(Scene):
             
             # self.smage.set_facing((self.x_index, self.y_index))
             pass
-        if event.type == MOUSEBUTTONDOWN and event.button == 3:
-            self.smage.set_pos((self.x_index, self.y_index))
+        # if event.type == MOUSEBUTTONDOWN and event.button == 3:
+        #     self.smage.set_pos((self.x_index, self.y_index))
         
+        #If the current state is Target state, this parts events are checked and executed if applicapble
+        ###########################################################################################################################################################
+        if isinstance(self.state_machine.current_state, TargetState):
+            
+            # if event.type == MOUSEBUTTONDOWN and event.button == 3:
+                
+            #     self.state_machine.change_state(self.turn_state)
+            #     self.selected_ability = None
+
+            #Check selected_ability targettype and check if allowed tile is clicked. Proceed to selected_ability.action() to see what to do
+
+            if self.selected_ability.targeting_type == ability.TargetingType.MOVE:
+
+                if self.current_tile == self.current_character.sprite.facing_tile and event.type == MOUSEBUTTONDOWN and event.button == 1:
+                    print("Clicked facing square")
+                    if self.current_character.sprite.move_a_square() == True:
+                        print(self.current_character.action_points)
+                        self.current_character.action_points = self.current_character.action_points - self.selected_ability.ap_cost
+                        print(self.current_character.action_points)
+                        if self.current_character.action_points > 0:
+                            self.state_machine.change_state(self.turn_state)
+                        else:
+                            print("Next turn")
+                            self.current_character.action_points = self.current_character.base_action_points
+                            self.group_manager.determine_turn_queue()
+                            self.current_character = self.group_manager.get_next_character()
+                            self.state_machine.change_state(self.turn_state)
+
+            if self.selected_ability.targeting_type == ability.TargetingType.FACE:
+
+                if self.current_tile in self.tilemap.get_tiles_in_coords(self.selected_ability.get_tiles_in_range(self.current_character.sprite.tile)) and event.type == MOUSEBUTTONDOWN and event.button == 1:
+                    print("Clicked adjecant square")
+                    if self.current_character.sprite.set_facing((self.x_index, self.y_index)) == True:
+                        print(self.current_character.action_points)
+                        self.current_character.action_points = self.current_character.action_points - self.selected_ability.ap_cost
+                        print(self.current_character.action_points)
+                        if self.current_character.action_points > 0:
+                            self.state_machine.change_state(self.turn_state)
+                        else:
+                            print("Next turn")
+                            self.current_character.action_points = self.current_character.base_action_points
+                            if self.group_manager.dead_character_indicator == True:
+                                print("Removing dead characters at the end of turn")
+                                self.group_manager.remove_dead_characters()
+                            self.group_manager.determine_turn_queue()
+                            self.current_character = self.group_manager.get_next_character()
+                            self.state_machine.change_state(self.turn_state)
+
+            if self.selected_ability.targeting_type == ability.TargetingType.SINGLE:
+                if self.current_tile in self.selected_ability.get_possible_targets(self.tilemap.get_tiles_in_coords(self.selected_ability.get_tiles_in_range(self.current_character.sprite.tile))) and event.type == MOUSEBUTTONDOWN and event.button == 1:
+                    target = self.current_tile.occupier_character
+                    print(f"Targeted {self.current_tile.occupier.name} with ability {self.selected_ability.name}")
+                    print(self.current_character.action_points)
+                    self.current_character.action_points = self.current_character.action_points - self.selected_ability.ap_cost
+                    print(self.current_character.action_points)
+                    target.take_damage(self.selected_ability.potency)
+                    if self.current_character.action_points > 0:
+                        self.state_machine.change_state(self.turn_state)
+                    else:
+                        print("Next turn")
+                        self.current_character.action_points = self.current_character.base_action_points
+                        self.group_manager.determine_turn_queue()
+                        self.current_character = self.group_manager.get_next_character()
+                        self.state_machine.change_state(self.turn_state)
+
+            if event.type == MOUSEBUTTONDOWN and event.button == 3:
+                
+                self.state_machine.change_state(self.turn_state)
+                self.selected_ability = None
+
+            #First implement move and turn
+            #If ActionPoints would be less than zero after action, prevent action
+            #If ActionPoints > 0, keep turn
+            #If ActionPoints == 0, self.group_manager.determine_turn_queue(), self.current_character = self.group_manager.get_next_character() and change state to Turn state
+
+
+        #If the current state is Turn state, this parts events are checked and executed if applicapble
+        ###########################################################################################################################################################
         if isinstance(self.state_machine.current_state, TurnState):
             for btn in self.state_machine.current_state.ability_buttons.values():
-                if btn.clicked((self.x_world, self.y_world), event):
+                if btn.clicked((self.x_world, self.y_world), event) and self.current_character.can_take_action(btn.ability):
                     self.selected_ability = btn.ability
                     self.state_machine.change_state(self.target_state)
             
-
-
     def on_draw(self, screen):
         screen.fill((0,0,0))
         self.disp.fill((0,0,0))
@@ -272,9 +363,10 @@ class BattleScene(Scene):
         
         for tile in self.tilemap.map:
             #If there exists a sprite on tile, it is drawn there. Important for image layering
-            for sprite in self.sprites:
-                if tile.get_tile_coor() == sprite.pos:
-                    sprite.draw_sprite(self.disp)
+            for character in self.characters:
+                if tile.get_tile_coor() == character.sprite.pos:
+                    character.sprite.draw_sprite(self.disp)
+                    tile.occupier_character = character
 
 
 

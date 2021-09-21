@@ -1,3 +1,4 @@
+from typing import ClassVar
 from group_manager import GroupManager
 from sprite import Sprite
 from tilemap import TileMap
@@ -14,7 +15,11 @@ from attribute_id import AttributeId
 import pygame
 
 class TestGroupManager(unittest.TestCase):
-    def test_sprite(self):
+
+     
+
+    @classmethod
+    def setUpClass(cls) -> None:
         #Ready sprites
         mage = pygame.image.load("img/mage1.png")
         mage.set_colorkey((0, 0, 0))
@@ -25,50 +30,61 @@ class TestGroupManager(unittest.TestCase):
         f = open('map_full.txt')
         read_map = [[int(c) for c in row] for row in f.read().split('\n')]
         f.close()
-        map = []
+        tmap = [] 
         for y, row in enumerate(read_map):
             for x, index in enumerate(row):
-                map.append(Tile(x, y))
-        tilemap = TileMap(13, 13, map)
-        swar = Sprite('warrior', (2, 5), (2, 4), tilemap, [])
+                tmap.append(Tile(x, y))
+        
+        
         ahp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         ams = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
         ama = Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
-        sca = StatCollection()
-        sca.add_to_dict(AttributeId.HP, ahp)
-        sca.add_to_dict(AttributeId.STRENGTH, ams)
-        sca.add_to_dict(AttributeId.AGILITY, ama)
-        cwar = Character('Warrior', sca, swar, counter = 14, innate_counter= 8)
-        smage = Sprite('mage', (4, 7), (4, 6), tilemap, [])
+        cls.sca = StatCollection()
+        cls.sca.add_to_dict(AttributeId.HP, ahp)
+        cls.sca.add_to_dict(AttributeId.STRENGTH, ams)
+        cls.sca.add_to_dict(AttributeId.AGILITY, ama)
+
+        
         wmhp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         wms = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
         wma = Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
-        sc = StatCollection()
-        sc.add_to_dict(AttributeId.HP, wmhp)
-        sc.add_to_dict(AttributeId.STRENGTH, wms)
-        sc.add_to_dict(AttributeId.AGILITY, wma)
-        cmage = Character('WhiteMage', sc, smage, counter = 15, innate_counter= 10)
-        swolf = Sprite('wolf', (2, 3), (3, 3), tilemap, [])
+        cls.sc = StatCollection()
+        cls.sc.add_to_dict(AttributeId.HP, wmhp)
+        cls.sc.add_to_dict(AttributeId.STRENGTH, wms)
+        cls.sc.add_to_dict(AttributeId.AGILITY, wma)
+
+        
         whp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         ws = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
         wa = Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
-        scw = StatCollection()
-        scw.add_to_dict(AttributeId.HP, whp)
-        scw.add_to_dict(AttributeId.STRENGTH, ws)
-        scw.add_to_dict(AttributeId.AGILITY, wa)
-        cwolf = Character('Wolf', scw, swolf, counter = 21, innate_counter= 16)
-        sshroom = Sprite('shroom', (4, 5), (5, 5), tilemap, [])
+        cls.scw = StatCollection()
+        cls.scw.add_to_dict(AttributeId.HP, whp)
+        cls.scw.add_to_dict(AttributeId.STRENGTH, ws)
+        cls.scw.add_to_dict(AttributeId.AGILITY, wa)
+        
         shp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         ss = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
         sa = Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
-        scs = StatCollection()
-        scs.add_to_dict(AttributeId.HP, shp)
-        scs.add_to_dict(AttributeId.STRENGTH, ss)
-        scs.add_to_dict(AttributeId.AGILITY, sa)
-        cshroom = Character('Shroom', scs, sshroom, counter = 22, innate_counter= 19)
-        gm = GroupManager([cmage, cwolf, cwar, cshroom])
-        gm.determine_turn_queue()
-        gm.print_queue()
+        cls.scs = StatCollection()
+        cls.scs.add_to_dict(AttributeId.HP, shp)
+        cls.scs.add_to_dict(AttributeId.STRENGTH, ss)
+        cls.scs.add_to_dict(AttributeId.AGILITY, sa)
+        cls.tilemap = TileMap(13, 13, tmap)
+        cls.swar = Sprite('warrior', (2, 5), (2, 4), cls.tilemap, [])
+        cls.smage = Sprite('mage', (4, 7), (4, 6), cls.tilemap, [])
+        cls.swolf = Sprite('wolf', (2, 3), (3, 3),cls.tilemap, [])
+        cls.sshroom = Sprite('shroom', (4, 5), (5, 5), cls.tilemap, [])
+        cls.cwar = Character('Warrior', cls.sca, cls.swar, counter = 14, innate_counter= 8)
+        cls.cmage = Character('WhiteMage', cls.sc, cls.smage, counter = 15, innate_counter= 10)
+        cls.cwolf = Character('Wolf', cls.scw, cls.swolf, counter = 21, innate_counter= 16)
+        cls.cshroom = Character('Shroom', cls.scs, cls.sshroom, counter = 22, innate_counter= 19)
+        cls.gm = GroupManager([cls.cmage, cls.cwolf, cls.cwar, cls.cshroom])
+
+    def test_group_manager(self):
+        self.gm.determine_turn_queue()
+        self.assertEqual(self.gm.get_list(), ['Warrior', 'WhiteMage', 'Wolf', 'Warrior', 'Shroom', 'WhiteMage', 'Warrior', 'WhiteMage', 'Wolf', 'Warrior'], "Created queue differed from expected")
+        
+        
 if __name__ == '__main__':
     unittest.main()       
         

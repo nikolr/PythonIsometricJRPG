@@ -18,15 +18,16 @@ class Direction(IntEnum):
 
 class Sprite:
 
-    def __init__(self, name: str, pos: Tuple[int,int], facing: Tuple[int,int], map: TileMap, img_set: list):
+    def __init__(self, name: str, pos: Tuple[int,int], facing: Tuple[int,int], map: TileMap, img_set: list, character = None):
         self.name = name
+        self.character = character
         self.img_set = img_set
         self.pos = pos
         self.facing = facing
         self.map = map
         self.tile = map.get_tile_in_coor(pos[0], pos[1])
         self.tile.occupied = True
-        self.tile.occupier = self.name
+        self.tile.occupier = self
         self.facing_tile = map.get_tile_in_coor(facing[0], facing[1])
         self.offset = self.get_direction()
         self.allowed_facings = self.get_allowed_facings()
@@ -46,7 +47,7 @@ class Sprite:
             self.tile.occupied = False
             self.pos = self.facing
             self.tile = self.map.get_tile_in_coor(self.pos[0], self.pos[1])
-            self.tile.occupier = self.name
+            self.tile.occupier = self
             self.tile.occupied = True
             self.facing = tuple(l)
             if self.map.get_tile_in_coor(self.facing[0], self.facing[1]) == None:

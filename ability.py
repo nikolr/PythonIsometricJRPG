@@ -7,6 +7,8 @@ import ability
 import pygame
 
 class TargetingType(Enum):
+    FACE = -1
+    MOVE = 0
     SINGLE = 1
     ALL = 2
     AOE = 3
@@ -15,7 +17,7 @@ class TargetingType(Enum):
 
 class Ability():
 
-    def __init__(self, name: str, potency: int, ap_cost: int, targeting_type: TargetingType, range: int, user):
+    def __init__(self, name: str, potency: int, ap_cost: int,range: int, targeting_type: TargetingType, user = None):
         self.name = name
         self.potency = potency
         self.ap_cost = ap_cost
@@ -30,15 +32,15 @@ class Ability():
         """Gets an array of tiles, checks if characters occupy tiles and returns those characters"""
         targets = []
         for tile in tiles:
-            if tile.occupier != None:
-                targets.append(tile.occupier)
+            if tile.occupier != None and tile.occupier_character.alive == True:
+                targets.append(tile)
         return targets
 
     def get_tiles_in_range(self, tile: Tile):
-        """Returns array of tiles within range amount of tiles. Diagonal tiles are distance 2 away"""
+        """Returns array of tiles within range amount of tiles. Diagonal tiles are distance 2 away. If range = 0 then return facing tile"""
         within_range = []
         within_range_storage = []
-        tile
+
         if self.range > 0:
             within_range_storage.extend(projection.get_orthogonal_adjecant_squares(tile.xcoor, tile.ycoor))
         if self.range == 1:
@@ -52,9 +54,15 @@ class Ability():
 
     def draw_range_indicator(self, disp: pygame.Surface, tile: Tile):
         """Draw selected abilities range"""
+        if self.range == 0:
+            user = tile.get_tile_occupier()
+            facing_tile = user.facing_tile
+            disp.blit(self.zone_indicator, projection.isometricprojection(facing_tile.xcoor, facing_tile.ycoor, 32, 16, (disp.get_size()[0] / 2), (disp.get_size()[1] / 2)))
+            return True
         tiles_in_range = self.get_tiles_in_range(tile)
         for adj in tiles_in_range:
             disp.blit(self.zone_indicator, projection.isometricprojection(adj[0], adj[1], 32, 16, (disp.get_size()[0] / 2), (disp.get_size()[1] / 2)))
+        return False
 
     def action(self, target_tile: Tile):
         pass

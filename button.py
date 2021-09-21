@@ -23,7 +23,7 @@ class Button:
         
         if self.ability.name != '':
             font = pygame.font.Font("font/PressStart2P-vaV7.ttf", 10)
-            text = font.render(self.ability.name, 1, (0,0,0))
+            text = font.render(self.ability.name, 1, (255,255,255))
             screen.blit(text, (self.x + (self.width/2 - text.get_width()/2), self.y + (self.height/2 - text.get_height()/2)))
 
     def isOver(self, pos):

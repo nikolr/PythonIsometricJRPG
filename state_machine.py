@@ -10,6 +10,7 @@ class StateMachine:
         # self.state_queue.append(self.current_state)
 
     def change_state(self, new_state: State):
+        self.current_state.exit()
         self.current_state = new_state
         self.current_state.enter()
 
