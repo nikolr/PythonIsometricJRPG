@@ -1,3 +1,6 @@
+from wolf import Wolf
+from defeat import Defeat
+from win import Win
 from move import Move
 from typing import Tuple
 from target_state import TargetState
@@ -13,7 +16,7 @@ import pygame, sys, time, random
 
 from scene import Scene
 
-from sprite import Direction, Sprite
+from sprite import DOWN, UP, Direction, Sprite
 import projection
 from tilemap import TileMap
 from tile import Tile
@@ -85,7 +88,7 @@ class BattleScene(Scene):
         #     print(tile.get_tile_coor())
 
         #Initialize sprites and characters
-        self.smage = Sprite('mage', (4, 7), (4, 6), self.tilemap, [self.mage_down, self.mage_right, self.mage_up , self.mage_left])
+        self.smage = Sprite('mage', (4, 7), DOWN, self.tilemap, [self.mage_down, self.mage_right, self.mage_up , self.mage_left])
         wmhp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         wms = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
         wma = Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
@@ -95,7 +98,7 @@ class BattleScene(Scene):
         sc.add_to_dict(AttributeId.AGILITY, wma)
         self.cmage = Character('WhiteMage', sc, self.smage, scene= self, counter = 10, innate_counter= 14)
 
-        self.swolf = Sprite('wolf', (2, 3), (3, 3), self.tilemap, [self.wolf])
+        self.swolf = Sprite('wolf', (2, 3), UP, self.tilemap, [self.wolf])
         whp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         ws = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
         wa = Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
@@ -103,9 +106,9 @@ class BattleScene(Scene):
         scw.add_to_dict(AttributeId.HP, whp)
         scw.add_to_dict(AttributeId.STRENGTH, ws)
         scw.add_to_dict(AttributeId.AGILITY, wa)
-        self.cwolf = Character('Wolf', scw, self.swolf, playable= False, scene= self, counter = 13, innate_counter= 20)
+        self.cwolf = Wolf('Wolf', scw, self.swolf, playable= False, scene= self, counter = 7, innate_counter= 10)
 
-        self.swarrior = Sprite('warrior', (8, 7), (8, 6), self.tilemap, [self.warrior])
+        self.swarrior = Sprite('warrior', (8, 7), DOWN, self.tilemap, [self.warrior])
         ahp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         ams = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
         ama = Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
@@ -115,7 +118,7 @@ class BattleScene(Scene):
         sca.add_to_dict(AttributeId.AGILITY, ama)
         self.cwar = Character('Warrior', sca, self.swarrior, scene= self, counter = 14, innate_counter= 8)
 
-        self.sthief = Sprite('thief', (11, 7), (11, 6), self.tilemap, [self.thief])
+        self.sthief = Sprite('thief', (11, 7), DOWN, self.tilemap, [self.thief])
         thp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         ts = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
         ta = Attribute(AttributeId.AGILITY, 20, 'Health', 'Hit points until down')
@@ -126,6 +129,7 @@ class BattleScene(Scene):
         self.cthief = Character('Thief', sct, self.sthief, scene= self, counter = 5, innate_counter= 6)
 
         self.attack = ability.Ability("Slash", 20, 2, 1, ability.TargetingType.SINGLE)
+        self.bite = ability.Ability("Bite", 50, 1, 1, ability.TargetingType.SINGLE)
         self.shoot = ability.Ability("Shoot", 100, 2, 3, ability.TargetingType.SINGLE)
         self.face = Face("Face", 0, 1, 1, ability.TargetingType.FACE)
         self.move = Move("Move", 0, 1, 0, ability.TargetingType.MOVE)
@@ -147,7 +151,7 @@ class BattleScene(Scene):
 
         self.cwolf.gain_ability(self.move)
         self.cwolf.gain_ability(self.face)
-        self.cwolf.gain_ability(self.attack)
+        self.cwolf.gain_ability(self.bite)
         self.cwolf.gain_ability(self.shoot)
 
         
@@ -300,6 +304,12 @@ class BattleScene(Scene):
                             if self.group_manager.dead_character_indicator == True:
                                 print("Removing dead characters at the end of turn")
                                 self.group_manager.remove_dead_characters()
+                                if self.group_manager.player_party_is_empty() == True:
+                                    print("The party is literally empty")
+                                    self.director.change_scene(Win(self.director))
+                                elif self.group_manager.enemy_party_is_empty() == True:
+                                    """Call win state or lose state"""
+                                    self.director.change_scene(Defeat(self.director))
                             self.group_manager.determine_turn_queue()
                             self.current_character = self.group_manager.get_next_character()
                             self.state_machine.change_state(self.turn_state)
@@ -317,6 +327,15 @@ class BattleScene(Scene):
                     else:
                         print("Next turn")
                         self.current_character.action_points = self.current_character.base_action_points
+                        if self.group_manager.dead_character_indicator == True:
+                            print("Removing dead characters at the end of turn")
+                            self.group_manager.remove_dead_characters()
+                            if self.group_manager.player_party_is_empty() == True:
+                                print("The party is literally empty")
+                                self.director.change_scene(Win(self.director))
+                            elif self.group_manager.enemy_party_is_empty() == True:
+                                """Call win state or lose state"""
+                                self.director.change_scene(Defeat(self.director))
                         self.group_manager.determine_turn_queue()
                         self.current_character = self.group_manager.get_next_character()
                         self.state_machine.change_state(self.turn_state)
@@ -334,11 +353,22 @@ class BattleScene(Scene):
 
         #If the current state is Turn state, this parts events are checked and executed if applicapble
         ###########################################################################################################################################################
-        if isinstance(self.state_machine.current_state, TurnState):
+        if isinstance(self.state_machine.current_state, TurnState) and self.current_character.playable == True:
             for btn in self.state_machine.current_state.ability_buttons.values():
                 if btn.clicked((self.x_world, self.y_world), event) and self.current_character.can_take_action(btn.ability):
                     self.selected_ability = btn.ability
                     self.state_machine.change_state(self.target_state)
+        if isinstance(self.state_machine.current_state, TurnState) and self.current_character.playable == False:
+            if self.current_character.action_points > 0:
+                self.current_character.act()
+            else:
+                self.current_character.action_points = self.current_character.base_action_points
+                self.group_manager.determine_turn_queue()
+                self.current_character = self.group_manager.get_next_character()
+                self.state_machine.change_state(self.turn_state)
+
+
+                    
             
     def on_draw(self, screen):
         screen.fill((0,0,0))
@@ -350,7 +380,8 @@ class BattleScene(Scene):
                 self.disp.blit(self.selected_tile, (projection.isometricprojection(self.x_index, self.y_index, 32, 16, (DSX / 2), (DSY / 2))))
             #Blits arena tile on current tile 
             else:
-                self.disp.blit(self.tr, projection.isometricprojection(tile.xcoor, tile.ycoor, 32, 16, (DSX / 2), (DSY / 2)))
+                if tile.xcoor != 0 and tile.ycoor != 0 and tile.xcoor != 13 and tile.ycoor != 13:
+                    self.disp.blit(self.tr, projection.isometricprojection(tile.xcoor, tile.ycoor, 32, 16, (DSX / 2), (DSY / 2)))
             # #Loops through the current tiles adjecant tiles and blits a zone indicator tile on each of them
             # for adj in projection.get_adjecant_squares(self.x_index, self.y_index, 13):
             #     self.disp.blit(self.zone_indicator, projection.isometricprojection(adj[0], adj[1], 32, 16, (DSX / 2), (DSY / 2)))
@@ -367,6 +398,7 @@ class BattleScene(Scene):
                 if tile.get_tile_coor() == character.sprite.pos:
                     character.sprite.draw_sprite(self.disp)
                     tile.occupier_character = character
+                    
 
 
 

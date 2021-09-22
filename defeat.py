@@ -1,4 +1,4 @@
-import battle_scene
+import title
 from pygame.constants import KEYDOWN
 from config import SCREEN_SIZE_X, SCREEN_SIZE_Y
 from pygame import display, mixer
@@ -6,7 +6,7 @@ import pygame
 from director import Director
 from scene import Scene
 
-class Title(Scene):
+class Defeat(Scene):
     def __init__(self, director: Director) -> None:
         Scene.__init__(self, director)
         self.font = pygame.font.Font("font/PressStart2P-vaV7.ttf", 20)
@@ -20,11 +20,11 @@ class Title(Scene):
     def on_event(self, event):
         if event.type == KEYDOWN:
             if event.key == pygame.K_RETURN:
-                self.director.change_scene(battle_scene.BattleScene(self.director))
+                self.director.change_scene(title.Title(self.director))
     
     def on_draw(self, screen):
         screen.fill((0, 0, 0))
-        self.draw_text(screen, "This is the title screen", (255, 255, 255), SCREEN_SIZE_X/2, SCREEN_SIZE_Y/2)
+        self.draw_text(screen, "Your party has been vanquished", (255, 255, 255), SCREEN_SIZE_X/2, SCREEN_SIZE_Y/2)
         self.draw_text(screen, "Press enter to continue", (255, 255, 255), SCREEN_SIZE_X/2, SCREEN_SIZE_Y/1.5)
 
         

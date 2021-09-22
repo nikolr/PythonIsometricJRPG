@@ -1,37 +1,51 @@
 from ability import Ability
-from enum import IntEnum
+from enum import Enum
 from typing import Tuple
 
 import pygame
 
 import projection
 from tilemap import TileMap
+from collections import namedtuple
+
+direction = namedtuple('up', 'x y')
+UP = direction(0, 1)
+RIGHT = direction(-1, 0)
+DOWN = direction(0, -1)
+LEFT = direction(1, 0)
 
 
-class Direction(IntEnum):
-    UP = 0
-    RIGHT = 1
-    DOWN = 2
-    LEFT = 3
+class Direction(Enum):
+    UP = 0, 1
+    RIGHT = -1, 0
+    DOWN = 0, -1
+    LEFT = 1, 0
 
+#If attacking sprite has sprite.facing_direction = UP and target sprite has sprite has sprite.facing_direction = UP, then (0,1)+(0,1) = (0,2) => backstab
+#If attacking sprite has sprite.facing_direction = UP and target sprite has sprite has sprite.facing_direction = DOWN, then (0,1)+(0,-1) = (0,0) => frontal attack
+#So if the absolute value of the addition for x or y is 2 => backstab, if it is 0 the front
+#Maybe check the additions absolute values and raise backstab flag as needed
 
 
 class Sprite:
 
-    def __init__(self, name: str, pos: Tuple[int,int], facing: Tuple[int,int], map: TileMap, img_set: list, character = None):
+    def __init__(self, name: str, pos: Tuple[int,int], facing_direction: direction, map: TileMap, img_set: list, character = None):
         self.name = name
         self.character = character
         self.img_set = img_set
         self.pos = pos
-        self.facing = facing
+        self.facing_direction = facing_direction
+        self.facing = projection.add_tuples(pos, facing_direction)
         self.map = map
         self.tile = map.get_tile_in_coor(pos[0], pos[1])
         self.tile.occupied = True
         self.tile.occupier = self
-        self.facing_tile = map.get_tile_in_coor(facing[0], facing[1])
+        self.facing_tile = map.get_tile_in_coor(self.facing[0], self.facing[1])
         self.offset = self.get_direction()
         self.allowed_facings = self.get_allowed_facings()
         self.amount_of_allowed_facings = len(self.allowed_facings)
+
+        self.zone_of_control = map.get_tiles_in_coords(projection.get_adjecant_squares(self.tile.xcoor, self.tile.ycoor))
     
     def move_a_square(self, tilemap_dimension = 13) -> bool:
         """Gets the new facing square after current facing square has been set to current position. facing[0] tells the """
@@ -42,6 +56,9 @@ class Sprite:
             return False
         elif self.facing_tile.occupied == True:
             print(f"Cannot move onto tile. There is a {self.facing_tile.occupier} on it")
+            return False
+        elif self.facing_tile.xcoor <= 0 or self.facing_tile.ycoor <= 0 or self.facing_tile.xcoor >= 13 or self.facing_tile.ycoor >= 13:
+            print(f"Cannot move out of bounds")
             return False
         else:
             self.tile.occupied = False
@@ -98,13 +115,13 @@ class Sprite:
     def get_direction(self):
         off = (self.pos[0] - self.facing[0], self.pos[1] - self.facing[1])
         if off == (0,-1):
-            return int(Direction.UP)
+            return Direction.UP
         if off == (1,0):
-            return int(Direction.RIGHT)    
+            return Direction.RIGHT  
         if off == (0,1):
-            return int(Direction.DOWN)
+            return Direction.DOWN
         if off == (-1,0):
-            return int(Direction.LEFT)
+            return Direction.LEFT
 
     def draw_sprite(self, display: pygame.Surface):
         # display.blit(self.img_set[self.get_direction()], projection.get_isometric_tile_center(self.pos[0], self.pos[1], 32, 16, (display.get_size()[0] / 2), (display.get_size()[1] / 2)))

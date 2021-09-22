@@ -55,5 +55,8 @@ class Tile:
     def get_tile_occupier(self):
         return self.occupier
 
+    def get_tile_occupier_character(self):
+        return self.occupier_character
+
     def __str__(self):
         return f"{self.xcoor}, {self.ycoor}"

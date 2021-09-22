@@ -1,5 +1,6 @@
 from os import stat
 from typing import Tuple
+from operator import sub
 
 
 
@@ -33,7 +34,7 @@ def is_over_tile(x_world, y_world, x_index, y_index, tilewidth: int, tileheight:
         return False
     
 
-def get_adjecant_squares(x_index: int, y_index: int, tilemap_dimension: int) -> list[Tuple[int, int]]:
+def get_adjecant_squares(x_index: int, y_index: int, tilemap_dimension: int = 13) -> list[Tuple[int, int]]:
     """"Returns a list of adjecant tile index tuple pairs"""
     adjecant_tiles = []
     for i in (-1, 0, 1):
@@ -65,6 +66,44 @@ def get_isometric_tile_center(x_index: int, y_index: int, tilewidth: int, tilehe
     y = ((x_index - 0.5) + (y_index - 0.5)) * (tileheight/2) + offset_world_y
     return (x,y)
 
+def get_distance(point1, point2) -> int:
+    """Gets two points and calculates distance between when moving from tile to tile perpendicularly"""
+    substracted = sub_tuples(point1, point2)
+    return abs(substracted[0]) + abs(substracted[1])
+
+def get_closest(point, list_of_points) -> tuple((int, int)):
+    """Gets closest point to given point from a list of points"""
+    closest = list_of_points[0]
+    for p in list_of_points[1:]:
+        if get_distance(point, p) < get_distance(point, closest):
+            closest = p
+    return closest
+
+def get_line(pos, facing):
+    """Takes the position and facing indices and returns a list of indices continuing in a line"""
+    line = [pos, facing]
+    off = (facing[0] - pos[0], facing[1] - pos[1])
+    while True:
+        continuation = add_tuples(line[-1], off)
+        if continuation[0] < 0 or continuation[0] > 12 or continuation[1] < 0 or continuation[1] > 12:
+            break
+        line.append(continuation)
+    return line
+
+def get_lines(pos):
+    lines = []
+    for t in get_orthogonal_adjecant_squares(pos[0], pos[1]):
+        lines.extend(get_line(pos, t))
+        print(lines)
+    return lines
+
+def add_tuples(tuple1, tuple2):
+    zipped = zip(tuple1, tuple2)
+    mapped = map(sum, zipped)
+    return tuple(mapped)
+
+def sub_tuples(tuple1, tuple2):
+    return tuple(map(sub, tuple1, tuple2))
 
 def restrict(val, minval, maxval):
     if val < minval: return int(minval)

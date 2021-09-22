@@ -25,6 +25,18 @@ class TestProjection(unittest.TestCase):
         self.assertEqual(projection.get_orthogonal_adjecant_squares(1,1,2), [(0,1), (1,0), (2,1), (1,2)], "ort sq")
         self.assertEqual(projection.get_orthogonal_adjecant_squares(0,0,2), [(1,0), (0,1)], "ort sq")
         self.assertEqual(projection.get_orthogonal_adjecant_squares(13,13,13), [(12,13), (13,12)], "ort sq")
+    def test_get_distance(self):
+        self.assertEqual(projection.get_distance((1,1), (2,2)), 2, "Distance should be two")
+        self.assertEqual(projection.get_distance((1,1), (2,3)), 3, "Distance should be three")
+        self.assertEqual(projection.get_distance((0,1), (0,11)), 10, "Distance should be ten")
+        self.assertEqual(projection.get_distance((3,4), (7,0)), 8, "Distance should be eight")
+    def test_get_closest(self):
+        self.assertEqual(projection.get_closest((0, 0), [(12,12), (3,3), (3,4)]), (3,3), "Did not return closest")
+        self.assertEqual(projection.get_closest((4, 3), [(12,12), (3,3), (3,4), (0, 0), (5,7)]), (3,3), "Did not return closest")
+    def test_get_line(self):
+        self.assertEqual(projection.get_line((0, 0), (1, 0)), [(0, 0), (1, 0),(2, 0), (3, 0),(4, 0), (5, 0),(6, 0), (7, 0),(8, 0), (9, 0), (10, 0), (11, 0), (12, 0)])
+    def test_get_lines(self):
+        self.assertEqual(projection.get_lines((0, 0)), [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0), (12, 0), (0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9), (0, 10), (0, 11), (0, 12)] )
 
 if __name__ == '__main__':
     unittest.main()

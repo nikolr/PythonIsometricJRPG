@@ -25,6 +25,10 @@ class GroupManager:
             else:
                 self.enemy_party.append(p)
                 self.active_enemy_party.append(p)
+
+        self.player_sprites = [c.sprite.pos for c in self.player_party]
+        self.enemy_sprites = [c.sprite.pos for c in self.enemy_party]
+
         self.character_queue = deque()
         self.current_counters = [None] * len(participants)
         self.counter_history = [None] * len(participants)
@@ -37,6 +41,7 @@ class GroupManager:
     #Define functions for manipulating queue
     def determine_turn_queue(self):
         self.character_queue.clear()
+
         self.step_indicator = False
         self.first_reset_indicator = False
         if len(self.character_queue) >= 10:
@@ -89,23 +94,38 @@ class GroupManager:
             if char.alive == True:
                 alive_participants.append(char)
             if char.alive == False and char.playable == True:
-                    self.active_player_party.remove(char)
+                self.active_player_party.remove(char)
+                self.player_sprites = [c.sprite.pos for c in self.active_player_party]
+                print(self.player_sprites)
             if char.alive == False and char.playable == False:
-                    self.active_enemy_party.remove(char)
+                self.active_enemy_party.remove(char)
+                print(f"Removed {char}")
+                self.enemy_sprites = [c.sprite.pos for c in self.active_enemy_party]
         self.participants = alive_participants
+        
+        self.remove_dead_from_queue()
         self.dead_character_indicator = False
         print("Listening again for dead character flags")
 
+    def remove_dead_from_queue(self):
+        alive_queue = deque()
+        for character in self.character_queue:
+            if character.alive:
+                alive_queue.append(character)
+        self.character_queue = alive_queue
+
     def player_party_is_empty(self):
-        # if not self.player_party:
-        #     return True
-        # return False
-        pass
+        print("Checking if active player party is empty")
+        if not self.active_player_party:
+            return True
+        return False
+        
     def enemy_party_is_empty(self):
-        # if not self.enemy_party:
-        #     return True
-        # return False
-        pass
+        print("Checking if active enemy party is empty")
+        if not self.active_enemy_party:
+            return True
+        return False
+        
 
 
     def get_list(self):

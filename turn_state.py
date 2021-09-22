@@ -1,3 +1,5 @@
+from win import Win
+from defeat import Defeat
 from attribute_id import AttributeId
 import pygame
 from state import State
@@ -37,24 +39,8 @@ class TurnState(State):
             # self.ability_buttons.append(Button((0,0,70), self.director.screen.get_rect().midleft[0], self.director.screen.get_rect().midleft[1] + 300 + (i + 20), 100, 50, ab))
             # self.ability_buttons[f"{i}"] = self.scene.current_character.abilities[i]
             self.ability_buttons[f"{i}"] = Button((0,0,70), self.director.screen.get_rect().midleft[0], self.director.screen.get_rect().midleft[1] + 330 + (i * 30), 100, 35, self.scene.current_character.abilities[i])
-        # if self.scene.group_manager.dead_character_indicator == True:
-        #     if self.scene.group_manager.player_party_is_empty() == True or self.scene.group_manager.enemy_party_is_empty() == True:
-        #         """Call win state or lose state"""
-        #         pass
-        #     self.scene.group_manager.remove_dead_characters()
-        #     self.scene.group_manager.determine_turn_queue()
     def exit(self):
-        # if self.scene.current_character.alive == False:
-        #     self.scene.current_character = self.scene.group_manager.get_next_character()
-
-        # if self.scene.group_manager.dead_character_indicator == True:
-        #     if self.scene.group_manager.player_party_is_empty() == True or self.scene.group_manager.enemy_party_is_empty() == True:
-        #         """Call win state or lose state"""
-        #         pass
-        #     self.scene.group_manager.remove_dead_characters()
-        #     self.scene.group_manager.determine_turn_queue()
-        #     self.scene.current_character = self.scene.group_manager.get_next_character()
-        # print("Exited Turn State")
+        print("Exited Turn State")
         pass
     def update(self):
         for btn in self.ability_buttons.values():

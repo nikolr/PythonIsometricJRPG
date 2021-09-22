@@ -62,6 +62,9 @@ class Character:
     def get_attribute_value(self, attributeid: AttributeId):
         return self.stat_collection.get_attribute(attributeid).value
 
+    def act(self):
+        pass
+
     def __str__(self) -> str:
         return self.name
 

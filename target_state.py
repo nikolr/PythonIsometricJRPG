@@ -1,3 +1,5 @@
+from defeat import Defeat
+from win import Win
 from ability import Ability
 from state import State
 from director import Director
@@ -16,17 +18,26 @@ class TargetState(State):
         print("Entered Targeting State")
 
     def exit(self):
-        if self.scene.current_character.alive == False:
-            print("Checking if current character is dead")
-            self.scene.group_manager.remove_dead_characters()
-            self.scene.group_manager.determine_turn_queue()
-            self.scene.current_character = self.scene.group_manager.get_next_character()
         if self.scene.group_manager.dead_character_indicator == True:
-            print("Flag dead character raised")
-            if self.scene.group_manager.player_party_is_empty() == True or self.scene.group_manager.enemy_party_is_empty() == True:
-                """Call win state or lose state"""
-                pass
             self.scene.group_manager.remove_dead_characters()
+            if self.scene.current_character.alive == False:
+                print("Checking if current character is dead")
+                # self.scene.group_manager.remove_dead_characters()
+                self.scene.group_manager.determine_turn_queue()
+                self.scene.current_character = self.scene.group_manager.get_next_character()
+            
+            print("Flag dead character raised")
+            # self.scene.group_manager.remove_dead_characters()
+            if self.scene.group_manager.player_party_is_empty() == True:
+                self.director.change_scene(Defeat(self.director))
+            elif self.scene.group_manager.enemy_party_is_empty() == True:
+                """Call win state or lose state"""
+                self.director.change_scene(Win(self.director))
+            
+
+        #Update sprite positions
+        self.scene.group_manager.player_sprites = [c.sprite.pos for c in self.scene.group_manager.player_party]
+        # self.scene.group_manager.enemy_sprites = [c.sprite.pos for c in self.scene.group_manager.enemy_party]
             # self.scene.group_manager.determine_turn_queue()
             # self.scene.current_character = self.scene.group_manager.get_next_character()
         #Close character action panel
