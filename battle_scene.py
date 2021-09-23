@@ -1,3 +1,4 @@
+from bash import Bash
 from wolf import Wolf
 from defeat import Defeat
 from win import Win
@@ -88,7 +89,7 @@ class BattleScene(Scene):
         #     print(tile.get_tile_coor())
 
         #Initialize sprites and characters
-        self.smage = Sprite('mage', (4, 7), DOWN, self.tilemap, [self.mage_down, self.mage_right, self.mage_up , self.mage_left])
+        self.smage = Sprite('mage', (4, 12), DOWN, self.tilemap, [self.mage_down, self.mage_right, self.mage_up , self.mage_left])
         wmhp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         wms = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
         wma = Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
@@ -98,7 +99,9 @@ class BattleScene(Scene):
         sc.add_to_dict(AttributeId.AGILITY, wma)
         self.cmage = Character('WhiteMage', sc, self.smage, scene= self, counter = 10, innate_counter= 14)
 
-        self.swolf = Sprite('wolf', (2, 3), UP, self.tilemap, [self.wolf])
+        self.swolf1 = Sprite('wolf', (2, 3), UP, self.tilemap, [self.wolf])
+        self.swolf2 = Sprite('wolf', (4, 3), UP, self.tilemap, [self.wolf])
+        self.swolf3 = Sprite('wolf', (6, 3), UP, self.tilemap, [self.wolf])
         whp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         ws = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
         wa = Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
@@ -106,7 +109,9 @@ class BattleScene(Scene):
         scw.add_to_dict(AttributeId.HP, whp)
         scw.add_to_dict(AttributeId.STRENGTH, ws)
         scw.add_to_dict(AttributeId.AGILITY, wa)
-        self.cwolf = Wolf('Wolf', scw, self.swolf, playable= False, scene= self, counter = 7, innate_counter= 10)
+        self.cwolf1 = Wolf('Wolf 1', scw, self.swolf1, playable= False, scene= self, counter = 7, innate_counter= 10)
+        self.cwolf2 = Wolf('Wolf 2', scw, self.swolf2, playable= False, scene= self, counter = 7, innate_counter= 10)
+        self.cwolf3 = Wolf('Wolf 3', scw, self.swolf3, playable= False, scene= self, counter = 7, innate_counter= 10)
 
         self.swarrior = Sprite('warrior', (8, 7), DOWN, self.tilemap, [self.warrior])
         ahp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
@@ -129,6 +134,7 @@ class BattleScene(Scene):
         self.cthief = Character('Thief', sct, self.sthief, scene= self, counter = 5, innate_counter= 6)
 
         self.attack = ability.Ability("Slash", 20, 2, 1, ability.TargetingType.SINGLE)
+        self.bash = Bash("Bash", 20, 2, 1, ability.TargetingType.SINGLE)
         self.bite = ability.Ability("Bite", 50, 1, 1, ability.TargetingType.SINGLE)
         self.shoot = ability.Ability("Shoot", 100, 2, 3, ability.TargetingType.SINGLE)
         self.face = Face("Face", 0, 1, 1, ability.TargetingType.FACE)
@@ -149,14 +155,24 @@ class BattleScene(Scene):
         self.cthief.gain_ability(self.attack)
         self.cthief.gain_ability(self.shoot)
 
-        self.cwolf.gain_ability(self.move)
-        self.cwolf.gain_ability(self.face)
-        self.cwolf.gain_ability(self.bite)
-        self.cwolf.gain_ability(self.shoot)
+        self.cwolf1.gain_ability(self.move)
+        self.cwolf1.gain_ability(self.face)
+        self.cwolf1.gain_ability(self.bite)
+        self.cwolf1.gain_ability(self.shoot)
+
+        self.cwolf2.gain_ability(self.move)
+        self.cwolf2.gain_ability(self.face)
+        self.cwolf2.gain_ability(self.bite)
+        self.cwolf2.gain_ability(self.shoot)
+
+        self.cwolf3.gain_ability(self.move)
+        self.cwolf3.gain_ability(self.face)
+        self.cwolf3.gain_ability(self.bite)
+        self.cwolf3.gain_ability(self.shoot)
 
         
 
-        self.characters = [self.cmage, self.cwar, self.cwolf, self.cthief]
+        self.characters = [self.cmage, self.cwar, self.cwolf1, self.cwolf2, self.cwolf3, self.cthief]
         # self.sprites = [self.smage]
 
         # Background sound
@@ -167,7 +183,7 @@ class BattleScene(Scene):
 
 
         #TODO TEST RIGOROUSLY
-        self.group_manager = GroupManager([self.cmage, self.cwolf, self.cwar, self.cthief])
+        self.group_manager = GroupManager([self.cmage, self.cwolf1, self.cwolf2, self.cwolf3, self.cwar, self.cthief])
         self.group_manager.determine_turn_queue()
         self.current_character = self.group_manager.get_next_character()
         self.target = None
@@ -223,6 +239,33 @@ class BattleScene(Scene):
 
         self.state_machine.current_state.update()
 
+        if isinstance(self.state_machine.current_state, TurnState) and self.current_character.playable == False:
+            if self.current_character.action_points > 0:
+                self.current_character.act()
+                if self.group_manager.dead_character_indicator == True:
+                                print("Removing dead characters at the end of turn")
+                                self.group_manager.remove_dead_characters()
+                                if self.group_manager.player_party_is_empty() == True:
+                                    print("The party is literally empty")
+                                    self.director.change_scene(Win(self.director))
+                                elif self.group_manager.enemy_party_is_empty() == True:
+                                    """Call win state or lose state"""
+                                    self.director.change_scene(Defeat(self.director))
+            else:
+                self.current_character.action_points = self.current_character.base_action_points
+                if self.group_manager.dead_character_indicator == True:
+                                print("Removing dead characters at the end of turn")
+                                self.group_manager.remove_dead_characters()
+                                if self.group_manager.player_party_is_empty() == True:
+                                    print("The party is literally empty")
+                                    self.director.change_scene(Win(self.director))
+                                elif self.group_manager.enemy_party_is_empty() == True:
+                                    """Call win state or lose state"""
+                                    self.director.change_scene(Defeat(self.director))
+                self.group_manager.determine_turn_queue()
+                self.current_character = self.group_manager.get_next_character()
+                self.state_machine.change_state(self.turn_state)
+
 
     #Gets event passed as an argument by director loop. Identifies it and acts accordingly. Listens only to events allowed by current state. Still working on that
     def on_event(self, event):
@@ -270,7 +313,8 @@ class BattleScene(Scene):
             #     self.selected_ability = None
 
             #Check selected_ability targettype and check if allowed tile is clicked. Proceed to selected_ability.action() to see what to do
-
+            #MOVE THESE TO THE ABILITIES
+            #MAKE ABILITIES SUBCLASSES OF ABILITY AND ADD THE BOTTOM FUNCTIONALITY TO THEM
             if self.selected_ability.targeting_type == ability.TargetingType.MOVE:
 
                 if self.current_tile == self.current_character.sprite.facing_tile and event.type == MOUSEBUTTONDOWN and event.button == 1:
@@ -358,14 +402,23 @@ class BattleScene(Scene):
                 if btn.clicked((self.x_world, self.y_world), event) and self.current_character.can_take_action(btn.ability):
                     self.selected_ability = btn.ability
                     self.state_machine.change_state(self.target_state)
-        if isinstance(self.state_machine.current_state, TurnState) and self.current_character.playable == False:
-            if self.current_character.action_points > 0:
-                self.current_character.act()
-            else:
-                self.current_character.action_points = self.current_character.base_action_points
-                self.group_manager.determine_turn_queue()
-                self.current_character = self.group_manager.get_next_character()
-                self.state_machine.change_state(self.turn_state)
+        # if isinstance(self.state_machine.current_state, TurnState) and self.current_character.playable == False:
+        #     if self.current_character.action_points > 0:
+        #         self.current_character.act()
+        #     else:
+        #         self.current_character.action_points = self.current_character.base_action_points
+        #         if self.group_manager.dead_character_indicator == True:
+        #                         print("Removing dead characters at the end of turn")
+        #                         self.group_manager.remove_dead_characters()
+        #                         if self.group_manager.player_party_is_empty() == True:
+        #                             print("The party is literally empty")
+        #                             self.director.change_scene(Win(self.director))
+        #                         elif self.group_manager.enemy_party_is_empty() == True:
+        #                             """Call win state or lose state"""
+        #                             self.director.change_scene(Defeat(self.director))
+        #         self.group_manager.determine_turn_queue()
+        #         self.current_character = self.group_manager.get_next_character()
+        #         self.state_machine.change_state(self.turn_state)
 
 
                     

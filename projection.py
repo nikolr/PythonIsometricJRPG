@@ -60,6 +60,19 @@ def get_orthogonal_adjecant_squares(x_index: int, y_index: int, tilemap_dimensio
             adjecant_tiles.append((x_index, y_index + i))
     return adjecant_tiles
 
+def get_front_squares(pos, facing, tilemap_dimension: int = 13):
+    # off = (facing[0] - pos[0], facing[1] - pos[1])
+    front_squares = [facing]
+    if pos[0] == facing[0]:
+        for i in (-1, 1):
+            if facing[0] + i >= 0 and facing[0] + i <= tilemap_dimension:
+                front_squares.append((facing[0] + i, facing[1]))
+    if pos[1] == facing[1]:
+        for i in (-1, 1):
+            if facing[1] + i >= 0 and facing[1] + i <= tilemap_dimension:
+                front_squares.append((facing[0], facing[1] + i))
+    return front_squares
+
 
 def get_isometric_tile_center(x_index: int, y_index: int, tilewidth: int, tileheight: int, offset_world_x: int, offset_world_y: int) -> Tuple[float, float]:
     x = ((x_index - 0.5)- (y_index - 0.5)) * (tilewidth/2) + offset_world_x
@@ -74,7 +87,7 @@ def get_distance(point1, point2) -> int:
 def get_closest(point, list_of_points) -> tuple((int, int)):
     """Gets closest point to given point from a list of points"""
     closest = list_of_points[0]
-    for p in list_of_points[1:]:
+    for p in list_of_points:
         if get_distance(point, p) < get_distance(point, closest):
             closest = p
     return closest
@@ -94,8 +107,16 @@ def get_lines(pos):
     lines = []
     for t in get_orthogonal_adjecant_squares(pos[0], pos[1]):
         lines.extend(get_line(pos, t))
-        print(lines)
     return lines
+
+def get_flank_and_back_lines(pos, facing):
+    """Get lines extending from square to all sides that are not the facing side"""
+    lines = []
+    for t in get_orthogonal_adjecant_squares(pos[0], pos[1]):
+        if t != facing:
+            lines.extend(get_line(pos, t))
+    return lines
+
 
 def add_tuples(tuple1, tuple2):
     zipped = zip(tuple1, tuple2)

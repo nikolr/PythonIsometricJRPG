@@ -37,6 +37,12 @@ class TestProjection(unittest.TestCase):
         self.assertEqual(projection.get_line((0, 0), (1, 0)), [(0, 0), (1, 0),(2, 0), (3, 0),(4, 0), (5, 0),(6, 0), (7, 0),(8, 0), (9, 0), (10, 0), (11, 0), (12, 0)])
     def test_get_lines(self):
         self.assertEqual(projection.get_lines((0, 0)), [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0), (12, 0), (0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9), (0, 10), (0, 11), (0, 12)] )
+    def test_get_flank_and_back_lines(self):
+        self.assertEqual(projection.get_flank_and_back_lines((0, 0), (1, 0)), [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9), (0, 10), (0, 11), (0, 12)] )
+    def test_get_front_squares(self):
+        self.assertEqual(projection.get_front_squares((1, 1), (0, 1)), [(0,1), (0,0), (0,2)], "Incorrect front tiles")
+        self.assertEqual(projection.get_front_squares((0, 1), (0, 0)), [(0,0), (1,0)], "Incorrect front tiles")
+        self.assertEqual(projection.get_front_squares((0, 13), (1, 13)), [(1,13), (1,12)], "Incorrect front tiles")
 
 if __name__ == '__main__':
     unittest.main()

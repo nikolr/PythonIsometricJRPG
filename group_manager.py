@@ -96,10 +96,10 @@ class GroupManager:
             if char.alive == False and char.playable == True:
                 self.active_player_party.remove(char)
                 self.player_sprites = [c.sprite.pos for c in self.active_player_party]
+                print("*" * 50)
                 print(self.player_sprites)
             if char.alive == False and char.playable == False:
                 self.active_enemy_party.remove(char)
-                print(f"Removed {char}")
                 self.enemy_sprites = [c.sprite.pos for c in self.active_enemy_party]
         self.participants = alive_participants
         

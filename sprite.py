@@ -82,23 +82,28 @@ class Sprite:
             return True
         return False
     
-    def change_facing(self, direction: Direction):
-        if direction == Direction.UP:
-            self.facing = (self.pos[0], self.pos[1] - 1)
-            self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
-            # print(f"FACING {direction}")
-        elif direction == Direction.RIGHT:
-            self.facing = (self.pos[0] + 1, self.pos[1])
-            self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
-            # print(f"FACING {direction}")
-        elif direction == Direction.DOWN:
-            self.facing = (self.pos[0], self.pos[1] + 1)
-            self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
-            # print(f"FACING {direction}")
-        elif direction == Direction.LEFT:
-            self.facing = (self.pos[0] - 1, self.pos[1])
-            self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
-            # print(f"FACING {direction}")
+    # def change_facing(self, direction: direction):
+    #     if direction == UP:
+    #         self.facing = (self.pos[0], self.pos[1] - 1)
+    #         self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
+    #         # print(f"FACING {direction}")
+    #     elif direction == RIGHT:
+    #         self.facing = (self.pos[0] + 1, self.pos[1])
+    #         self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
+    #         # print(f"FACING {direction}")
+    #     elif direction == DOWN:
+    #         self.facing = (self.pos[0], self.pos[1] + 1)
+    #         self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
+    #         # print(f"FACING {direction}")
+    #     elif direction == LEFT:
+    #         self.facing = (self.pos[0] - 1, self.pos[1])
+    #         self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
+    #         # print(f"FACING {direction}")
+
+    def change_facing(self, direction: direction):
+        """takes direction as an argument and sets facing to the tile in that direction"""
+        new_facing = projection.add_tuples(self.pos, direction)
+        self.set_facing(new_facing)
     
     def set_pos(self, new_pos: Tuple[int, int]):
         l = [self.facing[0], self.facing[1]]
