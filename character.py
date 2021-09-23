@@ -40,6 +40,8 @@ class Character:
         if self.alive == True:
             dmg = AttributeModifier(AttributeModType.FLAT, AttributeId.HP, -damage, 1)
             self.stat_collection.get_attribute(AttributeId.HP).add_modifier(dmg)
+            if self.stat_collection.get_attribute(AttributeId.HP).value > self.stat_collection.get_attribute(AttributeId.HP).base_value:
+                self.stat_collection.get_attribute(AttributeId.HP).value = self.stat_collection.get_attribute(AttributeId.HP).base_value
             if self.stat_collection.get_attribute(AttributeId.HP).value <= 0:
                 self.stat_collection.get_attribute(AttributeId.HP).remove_all_modifiers()
                 self.stat_collection.get_attribute(AttributeId.HP).value = 0

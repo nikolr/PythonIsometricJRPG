@@ -30,6 +30,7 @@ class Wolf(Character):
             print(tile)
             target = tile.get_tile_occupier_character()
             print(target)
+            print(target.alive)
             if target is None:
                 return False
             #If already in position, attack

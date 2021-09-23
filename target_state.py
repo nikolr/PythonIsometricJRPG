@@ -6,12 +6,19 @@ from director import Director
 import pygame
 
 
+
 class TargetState(State):
     """Keeps track of current character Action Points. After depletion or game end condition flags, get next state from queue? Or otherwise determine next state"""
     def __init__(self, director: Director, scene) -> None:
-        State.__init__(self, director, )
+        State.__init__(self, director)
         self.director = director
         self.scene = scene
+
+        self.ability_info_panel = pygame.Rect([director.screen.get_rect().topleft[0] + 200, director.screen.get_rect().topleft[1], 600, 200])
+
+
+        self.font = pygame.font.Font("font/PressStart2P-vaV7.ttf", 15)
+
         
 
     def enter(self):
@@ -57,3 +64,20 @@ class TargetState(State):
     def render(self):
         #Draw targeting tiles
         self.scene.selected_ability.draw_range_indicator(self.scene.disp, self.scene.current_character.sprite.tile)
+
+        #Draw info panel
+        pygame.draw.rect(self.director.screen,(100, 100, 100), self.ability_info_panel)
+
+        #Blit description
+        self.director.screen.blit(self.font.render(f"{self.scene.selected_ability.name}:", True, (255, 255, 255)), (self.director.screen.get_rect().topleft[0] + 200, self.director.screen.get_rect().topleft[1]))
+        blitlines(self.scene.director.screen, self.scene.selected_ability.description, self.font, (255, 255, 255), (self.director.screen.get_rect().topleft[0] + 200), self.director.screen.get_rect().topleft[1] + 20)
+        
+        self.director.screen.blit(self.font.render(f"Damage: {self.scene.selected_ability.potency}", True, (255, 255, 255)), (self.director.screen.get_rect().topleft[0] + 200, self.director.screen.get_rect().topleft[1] + 60))
+        self.director.screen.blit(self.font.render(f"AP cost: {self.scene.selected_ability.ap_cost}", True, (255, 255, 255)), (self.director.screen.get_rect().topleft[0] + 200, self.director.screen.get_rect().topleft[1] + 80))
+
+def blitlines(surf, text, renderer, color, x, y):
+    h = renderer.get_height()
+    lines = text.split('\n')
+    for i, ll in enumerate(lines):
+        txt_surface = renderer.render(ll, True, color)
+        surf.blit(txt_surface, (x, y+(i*h)))

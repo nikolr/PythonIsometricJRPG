@@ -17,8 +17,9 @@ class TargetingType(Enum):
 
 class Ability():
 
-    def __init__(self, name: str, potency: int, ap_cost: int,range: int, targeting_type: TargetingType, user = None):
+    def __init__(self, name: str, potency: int, ap_cost: int,range: int, targeting_type: TargetingType, description = 'Figure it out yourself', user = None):
         self.name = name
+        self.description = description
         self.potency = potency
         self.ap_cost = ap_cost
         self.targeting_type = targeting_type
@@ -32,7 +33,7 @@ class Ability():
         """Gets an array of tiles, checks if characters occupy tiles and returns those characters"""
         targets = []
         for tile in tiles:
-            if tile.occupier != None and tile.occupier_character.alive == True:
+            if tile.occupier_character != None and tile.occupier_character.alive == True:
                 targets.append(tile)
         return targets
 

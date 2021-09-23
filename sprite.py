@@ -61,6 +61,8 @@ class Sprite:
             print(f"Cannot move out of bounds")
             return False
         else:
+            self.tile.occupier = None
+            self.tile.occupier_character = None
             self.tile.occupied = False
             self.pos = self.facing
             self.tile = self.map.get_tile_in_coor(self.pos[0], self.pos[1])
@@ -71,6 +73,19 @@ class Sprite:
                 return False
             self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
             # Generate new allowed facings
+            self.allowed_facings = self.get_allowed_facings()
+            return True
+
+    def move_backwards(self, tilemap_dimension = 13) -> bool:
+        """Move a square backwards while maintaining facing direction"""
+        new_pos = projection.sub_tuples(self.pos - self.facing_direction)
+        if new_pos[0] < 0 or new_pos[0] > tilemap_dimension or new_pos[1] < 0 or new_pos[1] > tilemap_dimension:
+            return False
+        else:
+            self.facing = self.pos
+            self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
+            self.pos = new_pos
+            self.tile = self.map.get_tile_in_coor(self.pos[0], self.pos[1])
             self.allowed_facings = self.get_allowed_facings()
             return True
     def set_facing(self, new_facing: Tuple[int, int]) -> bool:

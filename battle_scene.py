@@ -1,3 +1,5 @@
+from spin import Spin
+from slash import Slash
 from bash import Bash
 from wolf import Wolf
 from defeat import Defeat
@@ -97,23 +99,37 @@ class BattleScene(Scene):
         sc.add_to_dict(AttributeId.HP, wmhp)
         sc.add_to_dict(AttributeId.STRENGTH, wms)
         sc.add_to_dict(AttributeId.AGILITY, wma)
-        self.cmage = Character('WhiteMage', sc, self.smage, scene= self, counter = 10, innate_counter= 14)
+        self.cmage = Character('WhiteMage', sc, self.smage, scene= self, counter = 2, innate_counter= 14)
 
         self.swolf1 = Sprite('wolf', (2, 3), UP, self.tilemap, [self.wolf])
-        self.swolf2 = Sprite('wolf', (4, 3), UP, self.tilemap, [self.wolf])
-        self.swolf3 = Sprite('wolf', (6, 3), UP, self.tilemap, [self.wolf])
-        whp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
-        ws = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
-        wa = Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
-        scw = StatCollection()
-        scw.add_to_dict(AttributeId.HP, whp)
-        scw.add_to_dict(AttributeId.STRENGTH, ws)
-        scw.add_to_dict(AttributeId.AGILITY, wa)
-        self.cwolf1 = Wolf('Wolf 1', scw, self.swolf1, playable= False, scene= self, counter = 7, innate_counter= 10)
-        self.cwolf2 = Wolf('Wolf 2', scw, self.swolf2, playable= False, scene= self, counter = 7, innate_counter= 10)
-        self.cwolf3 = Wolf('Wolf 3', scw, self.swolf3, playable= False, scene= self, counter = 7, innate_counter= 10)
+        self.swolf2 = Sprite('wolf', (3, 3), UP, self.tilemap, [self.wolf])
+        self.swolf3 = Sprite('wolf', (4, 3), UP, self.tilemap, [self.wolf])
+        whp1 = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
+        ws1= Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
+        wa1= Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
+        whp2 = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
+        ws2= Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
+        wa2= Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
+        whp3 = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
+        ws3= Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
+        wa3= Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
+        scw1 = StatCollection()
+        scw1.add_to_dict(AttributeId.HP, whp1)
+        scw1.add_to_dict(AttributeId.STRENGTH, ws1)
+        scw1.add_to_dict(AttributeId.AGILITY, wa1)
+        scw2 = StatCollection()
+        scw2.add_to_dict(AttributeId.HP, whp2)
+        scw2.add_to_dict(AttributeId.STRENGTH, ws2)
+        scw2.add_to_dict(AttributeId.AGILITY, wa2)
+        scw3 = StatCollection()
+        scw3.add_to_dict(AttributeId.HP, whp3)
+        scw3.add_to_dict(AttributeId.STRENGTH, ws3)
+        scw3.add_to_dict(AttributeId.AGILITY, wa3)
+        self.cwolf1 = Wolf('Wolf 1', scw1, self.swolf1, playable= False, scene= self, counter = 7, innate_counter= 10)
+        self.cwolf2 = Wolf('Wolf 2', scw2, self.swolf2, playable= False, scene= self, counter = 7, innate_counter= 10)
+        self.cwolf3 = Wolf('Wolf 3', scw3, self.swolf3, playable= False, scene= self, counter = 7, innate_counter= 10)
 
-        self.swarrior = Sprite('warrior', (8, 7), DOWN, self.tilemap, [self.warrior])
+        self.swarrior = Sprite('warrior', (4, 11), DOWN, self.tilemap, [self.warrior])
         ahp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         ams = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
         ama = Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
@@ -121,9 +137,9 @@ class BattleScene(Scene):
         sca.add_to_dict(AttributeId.HP, ahp)
         sca.add_to_dict(AttributeId.STRENGTH, ams)
         sca.add_to_dict(AttributeId.AGILITY, ama)
-        self.cwar = Character('Warrior', sca, self.swarrior, scene= self, counter = 14, innate_counter= 8)
+        self.cwar = Character('Warrior', sca, self.swarrior, scene= self, counter = 5, innate_counter= 8)
 
-        self.sthief = Sprite('thief', (11, 7), DOWN, self.tilemap, [self.thief])
+        self.sthief = Sprite('thief', (3, 4), DOWN, self.tilemap, [self.thief])
         thp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
         ts = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
         ta = Attribute(AttributeId.AGILITY, 20, 'Health', 'Hit points until down')
@@ -131,29 +147,32 @@ class BattleScene(Scene):
         sct.add_to_dict(AttributeId.HP, thp)
         sct.add_to_dict(AttributeId.STRENGTH, ts)
         sct.add_to_dict(AttributeId.AGILITY, ta)
-        self.cthief = Character('Thief', sct, self.sthief, scene= self, counter = 5, innate_counter= 6)
+        self.cthief = Character('Thief', sct, self.sthief, scene= self, counter = 1, innate_counter= 6)
 
-        self.attack = ability.Ability("Slash", 20, 2, 1, ability.TargetingType.SINGLE)
-        self.bash = Bash("Bash", 20, 2, 1, ability.TargetingType.SINGLE)
+        self.attack = ability.Ability("Attack", 20, 2, 1, ability.TargetingType.SINGLE)
+        self.bash = Bash("Bash", 20, 2, 1, ability.TargetingType.SINGLE, self.cmage)
+        self.slash = Slash("Slash", 50, 2, 1, ability.TargetingType.AOE, self.cwar)
         self.bite = ability.Ability("Bite", 50, 1, 1, ability.TargetingType.SINGLE)
-        self.shoot = ability.Ability("Shoot", 100, 2, 3, ability.TargetingType.SINGLE)
+        self.shoot = ability.Ability("Shoot", 50, 2, 3, ability.TargetingType.SINGLE)
         self.face = Face("Face", 0, 1, 1, ability.TargetingType.FACE)
         self.move = Move("Move", 0, 1, 0, ability.TargetingType.MOVE)
+        self.heal = ability.Ability("Heal", -40, 2, 3, ability.TargetingType.SINGLE,description="Restore some HP")
+        self.spin = Spin("Spin", 50, 2, 1, ability.TargetingType.AOE, self.cthief)
 
         self.cwar.gain_ability(self.move)     
         self.cwar.gain_ability(self.face)
-        self.cwar.gain_ability(self.attack)
+        self.cwar.gain_ability(self.slash)
         self.cwar.gain_ability(self.shoot)
 
         self.cmage.gain_ability(self.move)
         self.cmage.gain_ability(self.face)
-        self.cmage.gain_ability(self.attack)
-        self.cmage.gain_ability(self.shoot)
+        self.cmage.gain_ability(self.bash)
+        self.cmage.gain_ability(self.heal)
 
         self.cthief.gain_ability(self.move)
         self.cthief.gain_ability(self.face)
         self.cthief.gain_ability(self.attack)
-        self.cthief.gain_ability(self.shoot)
+        self.cthief.gain_ability(self.spin)
 
         self.cwolf1.gain_ability(self.move)
         self.cwolf1.gain_ability(self.face)
@@ -209,6 +228,23 @@ class BattleScene(Scene):
         #Panel font. Probably will make this a class
         self.font = pygame.font.Font("font/PressStart2P-vaV7.ttf", 10)
 
+    
+    def upkeep(self):
+        print("Next turn")
+        self.current_character.action_points = self.current_character.base_action_points
+        if self.group_manager.dead_character_indicator == True:
+            print("Removing dead characters at the end of turn")
+            self.group_manager.remove_dead_characters()
+            if self.group_manager.player_party_is_empty() == True:
+                self.director.change_scene(Defeat(self.director))
+            elif self.group_manager.enemy_party_is_empty() == True:
+                """Call win state or lose state"""
+                self.director.change_scene(Win(self.director))
+        self.group_manager.determine_turn_queue()
+        self.current_character = self.group_manager.get_next_character()
+        self.state_machine.change_state(self.turn_state)
+
+
 
     def on_update(self):
         #Keeps track where the mouse is pointing and converts it into isometric indices
@@ -222,6 +258,10 @@ class BattleScene(Scene):
         self.current_tile = self.tilemap.get_tile_in_coor(self.x_index, self.y_index)
         # print(self.x_index, end = ", ")
         # print(self.y_index)
+        # if self.current_tile.occupier_character is None:
+        #     print("No one on tile")
+        # else:
+        #     print(self.current_tile.occupier_character.name)
     
         keys = pygame.key.get_pressed()
         #Camera movement
@@ -316,7 +356,7 @@ class BattleScene(Scene):
             #MOVE THESE TO THE ABILITIES
             #MAKE ABILITIES SUBCLASSES OF ABILITY AND ADD THE BOTTOM FUNCTIONALITY TO THEM
             if self.selected_ability.targeting_type == ability.TargetingType.MOVE:
-
+                print("Clicked move")
                 if self.current_tile == self.current_character.sprite.facing_tile and event.type == MOUSEBUTTONDOWN and event.button == 1:
                     print("Clicked facing square")
                     if self.current_character.sprite.move_a_square() == True:
@@ -384,6 +424,9 @@ class BattleScene(Scene):
                         self.current_character = self.group_manager.get_next_character()
                         self.state_machine.change_state(self.turn_state)
 
+            if self.selected_ability.targeting_type == ability.TargetingType.AOE and event.type == MOUSEBUTTONDOWN and event.button == 1:
+                print("Clicked in aoe")
+                self.selected_ability.activate()
             if event.type == MOUSEBUTTONDOWN and event.button == 3:
                 
                 self.state_machine.change_state(self.turn_state)
@@ -401,6 +444,7 @@ class BattleScene(Scene):
             for btn in self.state_machine.current_state.ability_buttons.values():
                 if btn.clicked((self.x_world, self.y_world), event) and self.current_character.can_take_action(btn.ability):
                     self.selected_ability = btn.ability
+                    print(f"Clicked button: {self.selected_ability.description}")
                     self.state_machine.change_state(self.target_state)
         # if isinstance(self.state_machine.current_state, TurnState) and self.current_character.playable == False:
         #     if self.current_character.action_points > 0:
@@ -462,13 +506,15 @@ class BattleScene(Scene):
         # turn_queue = pygame.Rect([0 + self.camera.x/2, 0 + self.camera.y/2 ,50, 200])
         
         screen.blit(pygame.transform.scale(self.disp, screen.get_size()), (0, 0), self.camera)
-
+        #Disgusting. Back to the drawing board
+        if isinstance(self.state_machine.current_state, TargetState):
+            self.state_machine.current_state.render()
         #Disgusting. Back to the drawing board
         if isinstance(self.state_machine.current_state, TurnState):
             self.state_machine.current_state.render()
 
         #Create containers for ui elements. Move out of the loop
-        turn_queue = pygame.Rect([screen.get_rect().topleft[0] , screen.get_rect().topleft[1] ,120, 235])
+        turn_queue = pygame.Rect([screen.get_rect().topleft[0] , screen.get_rect().topleft[1] ,120, 310])
         # ability_panel = pygame.Rect([screen.get_rect().midleft[0], screen.get_rect().midleft[1] + 280, 450, 200])
         # name_panel = pygame.Rect([screen.get_rect().midleft[0], screen.get_rect().midleft[1] + 280, 225, 50])
 
