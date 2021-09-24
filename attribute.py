@@ -13,19 +13,16 @@ class Attribute:
 
     @property
     def value(self):
-        print("In here")
         if self.need_to_calculate == True:
             print("Calculated final value")
             self.__value = self.calculate_final_value()
             self.need_to_calculate = False
         return self.__value
 
-    # @value.setter
-    # def rekisteritunnus(self, tunnus):
-    #     if Rekisteriote.rekisteritunnus_kelpaa(tunnus):
-    #         self.__rekisteritunnus = tunnus
-    #     else:
-    #         raise ValueError("Rekisteritunnus ei kelpaa")
+    @value.setter
+    def value(self, new_value):
+        self.__value = new_value
+        self.need_to_calculate = False
 
     def add_modifier(self, mod: AttributeModifier):
         """Adds a attribute modifier to attribute_modifiers list and sorts it by mod.order. Sets need_to_calculate to true"""

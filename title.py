@@ -1,4 +1,4 @@
-from battle_scene import BattleScene
+import battle_scene
 from pygame.constants import KEYDOWN
 from config import SCREEN_SIZE_X, SCREEN_SIZE_Y
 from pygame import display, mixer
@@ -20,7 +20,7 @@ class Title(Scene):
     def on_event(self, event):
         if event.type == KEYDOWN:
             if event.key == pygame.K_RETURN:
-                self.director.change_scene(BattleScene(self.director))
+                self.director.change_scene(battle_scene.BattleScene(self.director))
     
     def on_draw(self, screen):
         screen.fill((0, 0, 0))
