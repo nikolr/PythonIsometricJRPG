@@ -7,8 +7,9 @@ import ability
 import pygame
 
 class TargetingType(Enum):
-    FACE = -1
-    MOVE = 0
+    FACE = -2
+    MOVE = -1
+    WAIT = 0
     SINGLE = 1
     ALL = 2
     AOE = 3
@@ -56,16 +57,31 @@ class Ability():
     def draw_range_indicator(self, disp: pygame.Surface, tile: Tile):
         """Draw selected abilities range"""
         if self.range == 0:
-            user = tile.get_tile_occupier()
-            facing_tile = user.facing_tile
+            sprite = tile.get_tile_occupier()
+            facing_tile = sprite.facing_tile
             disp.blit(self.zone_indicator, projection.isometricprojection(facing_tile.xcoor, facing_tile.ycoor, 32, 16, (disp.get_size()[0] / 2), (disp.get_size()[1] / 2)))
             return True
-        tiles_in_range = self.get_tiles_in_range(tile)
+        if self.targeting_type == TargetingType.ALL:
+            tiles_in_range = self.user.scene.tilemap.map
+            for adj in tiles_in_range:
+                disp.blit(self.zone_indicator, projection.isometricprojection(adj.xcoor, adj.ycoor, 32, 16, (disp.get_size()[0] / 2), (disp.get_size()[1] / 2)))
+            return True
+        else:
+            tiles_in_range = self.get_tiles_in_range(tile)
         for adj in tiles_in_range:
             disp.blit(self.zone_indicator, projection.isometricprojection(adj[0], adj[1], 32, 16, (disp.get_size()[0] / 2), (disp.get_size()[1] / 2)))
         return False
 
-    def action(self, target_tile: Tile):
-        pass
+    def activate(self):
+        target = self.user.scene.current_tile.occupier_character
+        print(f"Targeted {self.user.scene.current_tile.occupier.name} with ability {self.name}")
+        print(self.user.scene.current_character.action_points)
+        self.user.scene.current_character.action_points = self.user.scene.current_character.action_points - self.ap_cost
+        print(self.user.scene.current_character.action_points)
+        target.take_damage(self.potency)
+        if self.user.scene.current_character.action_points > 0:
+            self.user.scene.state_machine.change_state(self.user.scene.turn_state)
+        else:
+            self.user.scene.upkeep()
 
 

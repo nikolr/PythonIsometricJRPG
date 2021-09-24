@@ -1,4 +1,3 @@
-
 import pygame
 from sprite import DOWN, LEFT, RIGHT, UP
 import win, defeat
@@ -30,7 +29,6 @@ class Wolf(Character):
             print(tile)
             target = tile.get_tile_occupier_character()
             print(target)
-            print(target.alive)
             if target is None:
                 return False
             #If already in position, attack
@@ -98,7 +96,12 @@ class Wolf(Character):
             #Wait with rest of ap
             else: 
                 print("Fuck it, can't think of anything")
-                self.sprite.move_a_square()
-                self.action_points = self.action_points - self.abilities[0].ap_cost
+                if self.sprite.move_a_square() == True:
+                    self.action_points = self.action_points - self.abilities[0].ap_cost
+                elif self.sprite.change_facing(UP):
+                    self.action_points = self.action_points - self.abilities[1].ap_cost
+                else:
+                    self.sprite.change_facing(LEFT)
+                    self.action_points = self.action_points - self.abilities[1].ap_cost
                 return False
         

@@ -1,0 +1,5 @@
+Refactor UI ASAP
+Spritesheet implementation
+Defend utility ability
+Database json xml
+Data for battle state given by director/scene manager

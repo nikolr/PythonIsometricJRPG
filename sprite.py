@@ -27,6 +27,10 @@ class Direction(Enum):
 #Maybe check the additions absolute values and raise backstab flag as needed
 
 
+#TODO Make simple sprite sheets and implement animations with them
+#On damaged => wobble in all directions
+#On ability use => Take a step towards facing tile
+
 class Sprite:
 
     def __init__(self, name: str, pos: Tuple[int,int], facing_direction: direction, map: TileMap, img_set: list, character = None):
@@ -76,16 +80,28 @@ class Sprite:
             self.allowed_facings = self.get_allowed_facings()
             return True
 
+    # def move_x(self, max_ap : int, tilemap_dimension = 13):
+    #     """"""
+
     def move_backwards(self, tilemap_dimension = 13) -> bool:
         """Move a square backwards while maintaining facing direction"""
-        new_pos = projection.sub_tuples(self.pos - self.facing_direction)
-        if new_pos[0] < 0 or new_pos[0] > tilemap_dimension or new_pos[1] < 0 or new_pos[1] > tilemap_dimension:
+        new_pos = projection.sub_tuples(self.pos, self.facing_direction)
+        if new_pos[0] < 0 or new_pos[0] >= tilemap_dimension or new_pos[1] < 0 or new_pos[1] >= tilemap_dimension:
             return False
         else:
+            #Update starting tile status to unoccupied
+            self.tile.occupier = None
+            self.tile.occupier_character = None
+            self.tile.occupied = False
+
             self.facing = self.pos
             self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
             self.pos = new_pos
+
+            #Update tile status
             self.tile = self.map.get_tile_in_coor(self.pos[0], self.pos[1])
+            self.tile.occupier = self
+            self.tile.occupied = True
             self.allowed_facings = self.get_allowed_facings()
             return True
     def set_facing(self, new_facing: Tuple[int, int]) -> bool:

@@ -6,7 +6,7 @@ import projection
 class Spin(Ability):
     def __init__(self, name: str, potency: int, ap_cost: int, range: int, targeting_type: TargetingType, user):
         super().__init__(name, potency, ap_cost, range, targeting_type = TargetingType.AOE, user=user)
-        self.description = "Spin to win, \nhit every adjecant square"
+        self.description = "Spin to win. \nHits every adjecant square"
 
     def activate(self):
         """Get target characters in get_possible_targets and deal flat damage on all"""

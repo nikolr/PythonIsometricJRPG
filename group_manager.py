@@ -95,6 +95,9 @@ class GroupManager:
                 alive_participants.append(char)
             if char.alive == False and char.playable == True:
                 self.active_player_party.remove(char)
+                char.sprite.tile.occupier_character = None
+                char.sprite.tile.occupier = None
+                char.sprite.tile = None
                 self.player_sprites = [c.sprite.pos for c in self.active_player_party]
                 print("*" * 50)
                 print(self.player_sprites)
