@@ -1,5 +1,7 @@
-Refactor UI ASAP
+Infobox on tile hover
 Spritesheet implementation
 Defend utility ability
 Database json xml
 Data for battle state given by director/scene manager
+Diagonal move and attack?
+Move player turn states out of event loop
