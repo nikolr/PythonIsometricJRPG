@@ -21,11 +21,12 @@ class Holy(Ability):
             self.user.scene.upkeep()
     def get_tiles_in_range(self, tile: Tile):
         """Returns array of tiles within range amount of tiles. Diagonal tiles are distance 2 away. If range = 0 then return facing tile"""
-        return self.user.scene.tilemap.map
+        return self.user.scene.map
 
     def get_aoe(self):
         """Returns array of tiles within range amount of tiles. Diagonal tiles are distance 2 away. If range = 0 then return facing tile"""
-        return self.user.scene.tilemap.map
+        return [tile for row in self.user.scene.map for tile in row]
+        # return self.user.scene.map
 
     # def draw_range_indicator(self, disp: pygame.Surface, tile: Tile):
     #     """Draw selected abilities range"""

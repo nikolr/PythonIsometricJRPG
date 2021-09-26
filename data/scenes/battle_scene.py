@@ -19,12 +19,6 @@ from data.states.target_state import TargetState
 from data.states.turn_state import TurnState
 import data.scenes.defeat
 import data.scenes.win
-# import pygame_gui
-
-
-# TODO FIX EVENTS
-# CLEAN
-# MAKE MORE MODULAR
 
 class BattleScene(Scene):
 
@@ -38,7 +32,7 @@ class BattleScene(Scene):
         self.x_index = (0, 0)
 
         # Create TileMap object. Used to store the list of tiles and provides functions to acess tiles given coordinates
-        self.tilemap = director.tilemap
+        self.map = director.map
         # Sprites for drawing the board
         self.tr = director.tr
         self.zone_indicator = director.zone_indicator
@@ -48,6 +42,7 @@ class BattleScene(Scene):
         # Update character scene
         for character in self.characters:
             character.scene = self
+
         # Background sound
         pygame.mixer.music.load('resources/sound/The Hero Approaches.wav')
         mixer.music.play(loops=-1)
@@ -88,6 +83,12 @@ class BattleScene(Scene):
         self.current_character = self.group_manager.get_next_character()
         self.state_machine.change_state(self.turn_state)
 
+    def get_tiles_from_coordinate_list(self, list):
+        list_of_tiles = []
+        for tuple in list:
+            list_of_tiles.append(self.map[tuple[0]][tuple[1]])
+        return list_of_tiles
+
     def on_update(self):
         # Keeps track where the mouse is pointing and converts it into isometric indices
         self.x_world, self.y_world = pygame.mouse.get_pos()
@@ -98,8 +99,7 @@ class BattleScene(Scene):
         self.x_index = projection.restrict(self.x_index, 0, 13)
         self.y_index = projection.restrict(self.y_index, 0, 13)
 
-        self.current_tile = self.tilemap.get_tile_in_coor(
-            self.x_index, self.y_index)
+        self.current_tile = self.map[self.x_index][self.y_index]
         # print(self.x_index, end = ", ")
         # print(self.y_index)
         # if self.current_tile.occupier_character is None:
@@ -138,11 +138,11 @@ class BattleScene(Scene):
                 self.upkeep()
 
     # Gets event passed as an argument by director loop. Identifies it and acts accordingly. Listens only to events allowed by current state. Still working on that
-
     def on_event(self, event):
         # This part of the event functions events are tracked on every frame
         ###########################################################################################################################################################
-        pass
+        if event.type == MOUSEBUTTONDOWN and event.button == 1:
+            print(f"Current sprite tile: {self.current_character.tile}")
 
         # If the current state is Target state, this parts events are checked and executed if applicapble
         ###########################################################################################################################################################
@@ -159,7 +159,7 @@ class BattleScene(Scene):
                         self.end_turn()
 
             if self.selected_ability.targeting_type == data.abilities.ability.TargetingType.FACE:
-                if self.current_tile in self.tilemap.get_tiles_in_coords(self.selected_ability.get_tiles_in_range(self.current_character.sprite.tile)) and event.type == MOUSEBUTTONDOWN and event.button == 1:
+                if self.current_tile in self.get_tiles_from_coordinate_list(self.selected_ability.get_tiles_in_range(self.current_character.sprite.tile)) and event.type == MOUSEBUTTONDOWN and event.button == 1:
                     if self.current_character.sprite.set_facing((self.x_index, self.y_index)) == True:
                         self.current_character.action_points = self.current_character.action_points - \
                             self.selected_ability.ap_cost
@@ -169,7 +169,7 @@ class BattleScene(Scene):
                         self.end_turn()
 
             if self.selected_ability.targeting_type == data.abilities.ability.TargetingType.SINGLE:
-                if self.current_tile in self.selected_ability.get_possible_targets(self.tilemap.get_tiles_in_coords(self.selected_ability.get_tiles_in_range(self.current_character.sprite.tile))) and event.type == MOUSEBUTTONDOWN and event.button == 1:
+                if self.current_tile in self.selected_ability.get_possible_targets(self.get_tiles_from_coordinate_list(self.selected_ability.get_tiles_in_range(self.current_character.sprite.tile))) and event.type == MOUSEBUTTONDOWN and event.button == 1:
                     self.selected_ability.activate()
 
             if self.selected_ability.targeting_type == data.abilities.ability.TargetingType.AOE and event.type == MOUSEBUTTONDOWN and event.button == 1:
@@ -204,19 +204,20 @@ class BattleScene(Scene):
         screen.fill((0, 0, 0))
         self.disp.fill((0, 0, 0))
 
-        for tile in self.tilemap.map:
-            # Highlights currently selected tile
-            if tile.xcoor == self.x_index and tile.ycoor == self.y_index:
-                self.disp.blit(self.selected_tile, (projection.isometricprojection(
-                    self.x_index, self.y_index, 32, 16, (DSX / 2), (DSY / 2))))
-            # Blits arena tile on current tile
-            else:
-                if tile.xcoor != 0 and tile.ycoor != 0 and tile.xcoor != 13 and tile.ycoor != 13:
-                    self.disp.blit(self.tr, projection.isometricprojection(
-                        tile.xcoor, tile.ycoor, 32, 16, (DSX / 2), (DSY / 2)))
-            # #Loops through the current tiles adjecant tiles and blits a zone indicator tile on each of them
-            # for adj in projection.get_adjecant_squares(self.x_index, self.y_index, 13):
-            #     self.disp.blit(self.zone_indicator, projection.isometricprojection(adj[0], adj[1], 32, 16, (DSX / 2), (DSY / 2)))
+        for row in self.map:
+            for tile in row:
+                # Highlights currently selected tile
+                if tile.xcoor == self.x_index and tile.ycoor == self.y_index:
+                    self.disp.blit(self.selected_tile, (projection.isometricprojection(
+                        self.x_index, self.y_index, 32, 16, (DSX / 2), (DSY / 2))))
+                # Blits arena tile on current tile
+                else:
+                    if tile.xcoor != 0 and tile.ycoor != 0 and tile.xcoor != 13 and tile.ycoor != 13:
+                        self.disp.blit(self.tr, projection.isometricprojection(
+                            tile.xcoor, tile.ycoor, 32, 16, (DSX / 2), (DSY / 2)))
+                # #Loops through the current tiles adjecant tiles and blits a zone indicator tile on each of them
+                # for adj in projection.get_adjecant_squares(self.x_index, self.y_index, 13):
+                #     self.disp.blit(self.zone_indicator, projection.isometricprojection(adj[0], adj[1], 32, 16, (DSX / 2), (DSY / 2)))
 
         # Disgusting. Back to the drawing board
         if isinstance(self.state_machine.current_state, TargetState):
@@ -224,12 +225,13 @@ class BattleScene(Scene):
 
         self.disp.blit(self.zone_indicator, projection.isometricprojection(
             self.current_character.sprite.facing[0], self.current_character.sprite.facing[1], 32, 16, (self.disp.get_size()[0] / 2), (self.disp.get_size()[1] / 2)))
-        for tile in self.tilemap.map:
-            # If there exists a sprite on tile, it is drawn there. Important for image layering
-            for character in self.characters:
-                if tile.get_tile_coor() == character.sprite.pos:
-                    character.sprite.draw_sprite(self.disp)
-                    tile.occupier_character = character
+        for row in self.map:
+            for tile in row:
+                # If there exists a sprite on tile, it is drawn there. Important for image layering
+                for character in self.characters:
+                    if tile.get_tile_coor() == character.sprite.pos:
+                        character.sprite.draw_sprite(self.disp)
+                        tile.occupier_character = character
 
         screen.blit(pygame.transform.scale(
             self.disp, screen.get_size()), (0, 0), self.camera)

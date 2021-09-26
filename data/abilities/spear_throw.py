@@ -29,7 +29,7 @@ class SpearThrow(Ability):
         """Returns array of tiles within range amount of tiles. Diagonal tiles are distance 2 away. If range = 0 then return facing tile"""
         coords = projection.get_line(self.user.sprite.pos, self.user.sprite.facing)
         coords.remove(self.user.sprite.pos)
-        return self.user.scene.tilemap.get_tiles_in_coords(coords)
+        return self.user.scene.get_tiles_from_coordinate_list(coords)
 
     def draw_range_indicator(self, disp, tile):
         """Draw selected abilities range"""

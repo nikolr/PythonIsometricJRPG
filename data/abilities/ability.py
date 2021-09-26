@@ -1,16 +1,16 @@
-from enum import Enum
+from enum import Enum, auto
 from data.tile import Tile
 import data.projection as projection
 import pygame
 
 class TargetingType(Enum):
-    FACE = -2
-    MOVE = -1
-    WAIT = 0
-    SINGLE = 1
-    ALL = 2
-    AOE = 3
-    LINE = 4
+    FACE = auto()
+    MOVE = auto()
+    WAIT = auto()
+    SINGLE = auto()
+    ALL = auto()
+    AOE = auto()
+    LINE = auto()
 
 
 class Ability():
@@ -45,10 +45,11 @@ class Ability():
         if self.range == 1:
             return within_range_storage
         for i in range(1, self.range):
+            within_range = []
             for tuple in within_range_storage:
                 within_range.extend(projection.get_orthogonal_adjecant_squares(tuple[0], tuple[1]))
             within_range_storage.extend(within_range)
-            within_range.clear()
+            
         return list(set([i for i in within_range_storage]))
 
     def draw_range_indicator(self, disp: pygame.Surface, tile: Tile):
@@ -59,9 +60,10 @@ class Ability():
             disp.blit(self.zone_indicator, projection.isometricprojection(facing_tile.xcoor, facing_tile.ycoor, 32, 16, (disp.get_size()[0] / 2), (disp.get_size()[1] / 2)))
             return True
         if self.targeting_type == TargetingType.ALL:
-            tiles_in_range = self.user.scene.tilemap.map
-            for adj in tiles_in_range:
-                disp.blit(self.zone_indicator, projection.isometricprojection(adj.xcoor, adj.ycoor, 32, 16, (disp.get_size()[0] / 2), (disp.get_size()[1] / 2)))
+            tiles_in_range = self.user.scene.map
+            for row in tiles_in_range:
+                for tile in row:
+                    disp.blit(self.zone_indicator, projection.isometricprojection(tile.xcoor, tile.ycoor, 32, 16, (disp.get_size()[0] / 2), (disp.get_size()[1] / 2)))
             return True
         else:
             tiles_in_range = self.get_tiles_in_range(tile)

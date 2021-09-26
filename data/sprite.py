@@ -24,7 +24,7 @@ LEFT = direction(1, 0)
 
 class Sprite:
 
-    def __init__(self, name: str, pos: Tuple[int,int], facing_direction: direction, map: TileMap, img_set: list, character = None):
+    def __init__(self, name: str, pos: Tuple[int,int], facing_direction: direction, map, img_set: list, character = None):
         self.name = name
         self.character = character
         self.img_set = img_set
@@ -32,15 +32,20 @@ class Sprite:
         self.facing_direction = facing_direction
         self.facing = projection.add_tuples(pos, facing_direction)
         self.map = map
-        self.tile = map.get_tile_in_coor(pos[0], pos[1])
+        self.tile = map[self.pos[0]][self.pos[1]]
         self.tile.occupied = True
         self.tile.occupier = self
-        self.facing_tile = map.get_tile_in_coor(self.facing[0], self.facing[1])
+        self.facing_tile = map[self.facing[0]][self.facing[1]]
         self.allowed_facings = self.get_allowed_facings()
         self.amount_of_allowed_facings = len(self.allowed_facings)
 
-        self.zone_of_control = map.get_tiles_in_coords(projection.get_adjecant_squares(self.tile.xcoor, self.tile.ycoor))
-    
+        self.zone_of_control = []
+        # self.zone_of_control = map.get_tiles_in_coords(projection.get_adjecant_squares(self.tile.xcoor, self.tile.ycoor))
+        # for (x,y) in projection.get_adjecant_squares(self.tile.xcoor, self.tile.ycoor):
+        #     print(map[x][y])
+        #     self.zone_of_control.append(map[x][y])
+        # print(self.zone_of_control)
+        
     def move_a_square(self, tilemap_dimension = 13) -> bool:
         """Gets the new facing square after current facing square has been set to current position. facing[0] tells the """
         l = [self.facing[0], self.facing[1]]
@@ -59,13 +64,13 @@ class Sprite:
             self.tile.occupier_character = None
             self.tile.occupied = False
             self.pos = self.facing
-            self.tile = self.map.get_tile_in_coor(self.pos[0], self.pos[1])
+            self.tile = self.map[self.pos[0]][self.pos[1]]
             self.tile.occupier = self
             self.tile.occupied = True
             self.facing = tuple(l)
-            if self.map.get_tile_in_coor(self.facing[0], self.facing[1]) == None:
+            if self.map[self.facing[0]][self.facing[1]] == None:
                 return False
-            self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
+            self.facing_tile = self.map[self.facing[0]][self.facing[1]]
             # Generate new allowed facings
             self.allowed_facings = self.get_allowed_facings()
             return True
@@ -87,11 +92,11 @@ class Sprite:
             self.tile.occupied = False
 
             self.facing = self.pos
-            self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
+            self.facing_tile = self.map[self.facing[0]][self.facing[1]]
             self.pos = new_pos
 
             #Update tile status
-            self.tile = self.map.get_tile_in_coor(self.pos[0], self.pos[1])
+            self.tile = self.map[self.pos[0]][self.pos[1]]
             self.tile.occupier = self
             self.tile.occupied = True
             self.allowed_facings = self.get_allowed_facings()
@@ -101,7 +106,7 @@ class Sprite:
         if new_facing in self.allowed_facings:
             self.facing = new_facing
             self.facing_direction = projection.sub_tuples(self.facing, self.pos)
-            self.facing_tile = self.map.get_tile_in_coor(self.facing[0], self.facing[1])
+            self.facing_tile = self.map[self.facing[0]][self.facing[1]]
             print("New facing acquired")
             return True
         return False

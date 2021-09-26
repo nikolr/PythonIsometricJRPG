@@ -8,9 +8,9 @@ from data.scenes.scene import Scene
 class Defeat(Scene):
     def __init__(self, director) -> None:
         Scene.__init__(self, director)
-        self.font = pygame.font.Font("font/PressStart2P-vaV7.ttf", 20)
+        self.font = pygame.font.Font("resources/font/PressStart2P-vaV7.ttf", 20)
         self.director = director
-        pygame.mixer.music.load('Prairie Oyster.wav')
+        pygame.mixer.music.load('resources/sound/Prairie Oyster.wav')
         mixer.music.play(loops=-1)
     
     def on_update(self):

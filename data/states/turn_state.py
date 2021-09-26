@@ -7,8 +7,6 @@ from data.ui import ui_module
 class TurnState(State):
     """Keeps track of current character Action Points. After depletion or game end condition flags, get next state from queue? Or otherwise determine next state"""
 
-    
-
     def __init__(self, director, scene) -> None:
         State.__init__(self, director)
         self.director = director
@@ -42,10 +40,7 @@ class TurnState(State):
         print("Entered Turn State")
         self.ability_buttons.clear()
         for i in range(len(self.scene.current_character.abilities)):
-            # self.ability_buttons.append(Button((0,0,70), self.director.screen.get_rect().midleft[0], self.director.screen.get_rect().midleft[1] + 300 + (i + 20), 100, 50, ab))
-            # self.ability_buttons[f"{i}"] = self.scene.current_character.abilities[i]
             self.ability_buttons[f"{i}"] = Button((0,0,70), self.director.screen.get_rect().midleft[0], self.director.screen.get_rect().midleft[1] + 330 + (i * 30), 120, 35, self.scene.current_character.abilities[i])
-
         self.utility_buttons[1] = Button((0,0,70), self.director.screen.get_rect().midleft[0] + 120, self.director.screen.get_rect().midleft[1] + 330, 120, 35, self.scene.director.wait)
         
     def exit(self):

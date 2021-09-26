@@ -25,7 +25,7 @@ class Wolf(Character):
             closest = projection.get_closest(self.sprite.pos, self.scene.group_manager.player_sprites)
             print(closest)
             #Get tile from point and get character from tile
-            tile = self.scene.tilemap.get_tile_in_coor(closest[0], closest[1])
+            tile = self.scene.map[closest[0]][closest[1]]
             print(tile)
             target = tile.get_tile_occupier_character()
             print(target)

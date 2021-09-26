@@ -1,4 +1,5 @@
 # Modules
+from pygame.event import clear
 from data.attributes.attribute_id import AttributeId
 import sys
 
@@ -69,36 +70,35 @@ class Director:
         self.zone_indicator = pygame.image.load("resources/img/wbsprite.png").convert()
         self.zone_indicator.set_colorkey((0, 0, 0))
 
-        # Ready the tilemap
-        f = open('resources/map_full.txt')
-        read_map = [[int(c) for c in row] for row in f.read().split('\n')]
-        f.close()
-
-        map = []
-        for y, row in enumerate(read_map):
-            for x, index in enumerate(row):
-                map.append(Tile(x, y))
-        # Create TileMap object. Used to store the list of tiles and provides functions to acess tiles given coordinates
-        self.tilemap = TileMap(13, 13, map)
-
+        # # Ready the map
+        # f = open('resources/map_full.txt')
+        # read_map = [[int(c) for c in row] for row in f.read().split('\n')]
+        # f.close()
 
         # map = []
-        # row = []
-        # for y in range(13):
-        #     for x in range(13):
-        #         row.append(Tile(x, y))
-        #     map.append(row)
-
+        # for y, row in enumerate(read_map):
+        #     for x, index in enumerate(row):
+        #         map.append(Tile(x, y))
+        # # Create TileMap object. Used to store the list of tiles and provides functions to acess tiles given coordinates
         # self.tilemap = TileMap(13, 13, map)
 
+
+        self.map = []
+
+        for i in range(14):
+            row = []
+            for j in range(14):
+                row.append(Tile(i, j))
+            self.map.append(row)
+            
         # #Test tile coordinates
-        # for row in map:
+        # for row in self.map:
         #     for tile in row:
         #         print(tile.get_tile_coor())
-        # print(map[6][6])
+        # print(self.map[6][6])
 
         # Initialize sprites and characters for the demop
-        self.smage = Sprite('mage', (4, 9), DOWN, self.tilemap, [
+        self.smage = Sprite('mage', (4, 9), DOWN, self.map, [
                             self.mage_down, self.mage_right, self.mage_up, self.mage_left])
         wmhp = Attribute(AttributeId.HP, 50, 'Health', 'Hit points until down')
         wms = Attribute(AttributeId.STRENGTH, 5,
@@ -112,10 +112,10 @@ class Director:
         self.cmage = Character('WhiteMage', sc, self.smage,
                                scene=self, counter=2, innate_counter=14)
 
-        self.swolf1 = Sprite('wolf', (2, 3), UP, self.tilemap, [self.wolf])
-        self.swolf2 = Sprite('wolf', (6, 3), UP, self.tilemap, [self.wolf])
-        self.swolf3 = Sprite('wolf', (9, 3), UP, self.tilemap, [self.wolf])
-        self.swolf4 = Sprite('wolf', (11, 3), UP, self.tilemap, [self.wolf])
+        self.swolf1 = Sprite('wolf', (2, 3), UP, self.map, [self.wolf])
+        self.swolf2 = Sprite('wolf', (6, 3), UP, self.map, [self.wolf])
+        self.swolf3 = Sprite('wolf', (9, 3), UP, self.map, [self.wolf])
+        self.swolf4 = Sprite('wolf', (11, 3), UP, self.map, [self.wolf])
         whp1 = Attribute(AttributeId.HP, 100, 'Health',
                          'Hit points until down')
         ws1 = Attribute(AttributeId.STRENGTH, 5,
@@ -166,7 +166,7 @@ class Director:
                            scene=self, counter=7, innate_counter=10)
 
         self.swarrior = Sprite('warrior', (6, 8), DOWN,
-                               self.tilemap, [self.warrior])
+                               self.map, [self.warrior])
         ahp = Attribute(AttributeId.HP, 120, 'Health', 'Hit points until down')
         ams = Attribute(AttributeId.STRENGTH, 5,
                         'Health', 'Hit points until down')
@@ -179,7 +179,7 @@ class Director:
         self.cwar = Character('Warrior', sca, self.swarrior,
                               scene=self.scene, counter=5, innate_counter=8)
 
-        self.sthief = Sprite('thief', (8, 9), DOWN, self.tilemap, [self.thief])
+        self.sthief = Sprite('thief', (8, 9), DOWN, self.map, [self.thief])
         thp = Attribute(AttributeId.HP, 80, 'Health', 'Hit points until down')
         ts = Attribute(AttributeId.STRENGTH, 5,
                        'Health', 'Hit points until down')
