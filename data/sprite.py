@@ -24,7 +24,7 @@ LEFT = direction(1, 0)
 
 class Sprite:
 
-    def __init__(self, name: str, pos: Tuple[int,int], facing_direction: direction, map, img_set: list, character = None):
+    def __init__(self, name: str, pos: Tuple[int,int], facing_direction: direction, map = [[]], img_set: list = [], character = None):
         self.name = name
         self.character = character
         self.img_set = img_set

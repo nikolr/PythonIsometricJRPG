@@ -26,13 +26,12 @@ class TestGroupManager(unittest.TestCase):
         wolf.set_colorkey((0, 0, 0))
         tr = pygame.image.load("resources/img/wrsprite.png")
         tr.set_colorkey((0, 0, 0))
-        f = open('resources/map_full.txt')
-        read_map = [[int(c) for c in row] for row in f.read().split('\n')]
-        f.close()
-        tmap = [] 
-        for y, row in enumerate(read_map):
-            for x, index in enumerate(row):
-                tmap.append(Tile(x, y))
+        cls.map = []
+        for i in range(14):
+            row = []
+            for j in range(14):
+                row.append(Tile(i, j))
+            cls.map.append(row)
         
         
         ahp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
@@ -68,22 +67,19 @@ class TestGroupManager(unittest.TestCase):
         cls.scs.add_to_dict(AttributeId.HP, shp)
         cls.scs.add_to_dict(AttributeId.STRENGTH, ss)
         cls.scs.add_to_dict(AttributeId.AGILITY, sa)
-        cls.tilemap = TileMap(13, 13, tmap)
-        cls.swar = Sprite('warrior', (2, 5), (2, 4), cls.tilemap, [])
-        cls.smage = Sprite('mage', (4, 7), (4, 6), cls.tilemap, [])
-        cls.swolf = Sprite('wolf', (2, 3), (3, 3),cls.tilemap, [])
-        cls.sshroom = Sprite('shroom', (4, 5), (5, 5), cls.tilemap, [])
-        cls.cwar = Character('Warrior', cls.sca, cls.swar, counter = 14, innate_counter= 8)
-        cls.cmage = Character('WhiteMage', cls.sc, cls.smage, counter = 15, innate_counter= 10)
-        cls.cwolf = Character('Wolf', cls.scw, cls.swolf, counter = 21, innate_counter= 16)
-        cls.cshroom = Character('Shroom', cls.scs, cls.sshroom, counter = 22, innate_counter= 19)
+        cls.swar = Sprite('warrior', (2, 5), (2, 4), cls.map, [])
+        cls.smage = Sprite('mage', (4, 7), (4, 6), cls.map, [])
+        cls.swolf = Sprite('wolf', (2, 3), (3, 3),cls.map, [])
+        cls.sshroom = Sprite('shroom', (4, 5), (5, 5), cls.map, [])
+        cls.cwar = Character('Warrior', cls.sca, cls.swar, counter = 1, innate_counter= 10)
+        cls.cmage = Character('WhiteMage', cls.sc, cls.smage, counter = 2, innate_counter= 10)
+        cls.cwolf = Character('Wolf', cls.scw, cls.swolf, counter = 3, innate_counter= 10)
+        cls.cshroom = Character('Shroom', cls.scs, cls.sshroom, counter = 4, innate_counter= 10)
         cls.gm = GroupManager([cls.cmage, cls.cwolf, cls.cwar, cls.cshroom])
 
     def test_group_manager(self):
         self.gm.determine_turn_queue()
-        self.assertEqual(self.gm.get_list(), ['Warrior', 'WhiteMage', 'Wolf', 'Warrior', 'Shroom', 'WhiteMage', 'Warrior', 'WhiteMage', 'Wolf', 'Warrior'], "Created queue differed from expected")
-        
-        
+        self.assertEqual(self.gm.get_list(), ['Warrior', 'WhiteMage', 'Wolf', 'Shroom', 'Warrior', 'WhiteMage', 'Wolf', 'Shroom', 'Warrior', 'WhiteMage'], "Created queue differed from expected")
 if __name__ == '__main__':
     unittest.main()       
         

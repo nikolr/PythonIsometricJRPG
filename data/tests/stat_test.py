@@ -1,43 +1,64 @@
-from attribute_modifier import AttributeModType, AttributeModifier
-from stat_collection import StatCollection
-from attribute_id import AttributeId
+from data.tile import Tile
 import unittest
-from sprite import Sprite
-from attribute import Attribute
-from character import Character
-#Movement from (0,0) to (1,0) should increase world coordinates by tilewidth/2 in x and tileheight/2 in y
+
+from data.attributes.attribute import Attribute
+from data.attributes.attribute_id import AttributeId
+from data.attributes.attribute_modifier import (AttributeModifier,
+                                                AttributeModType)
+from data.attributes.stat_collection import StatCollection
+from data.character import Character
+from data.sprite import DOWN, Sprite
+
 
 class TestProjection(unittest.TestCase):
-    def test_attribute(self):
-        s1 = Sprite('mage', (4,7), (4,6), [])
-        wmhp = Attribute(AttributeId.HP, 100, 'Health', 'Hit points until down')
-        wms = Attribute(AttributeId.STRENGTH, 5, 'Health', 'Hit points until down')
-        wma = Attribute(AttributeId.AGILITY, 10, 'Health', 'Hit points until down')
+    def setUp(self):
+        self.map = []
+        for i in range(14):
+            row = []
+            for j in range(14):
+                row.append(Tile(i, j))
+            self.map.append(row)
+
+        s1 = Sprite('mage', (4, 7), DOWN, map=self.map)
+        wmhp = Attribute(AttributeId.HP, 100, 'Health',
+                         'HP')
+        wms = Attribute(AttributeId.STRENGTH, 5,
+                        'Strength', 'STR')
+        wma = Attribute(AttributeId.AGILITY, 10,
+                        'Agility', 'AGI')
         sc = StatCollection()
         sc.add_to_dict(AttributeId.HP, wmhp)
         sc.add_to_dict(AttributeId.STRENGTH, wms)
         sc.add_to_dict(AttributeId.AGILITY, wma)
-        t = Character('wm', sc, s1, counter = 10)
-  
-        fadb = AttributeModifier(AttributeModType.FLAT, AttributeId.AGILITY, -4, 1)
-        t.stat_collection.get_attribute(AttributeId.AGILITY).add_modifier(fadb)
-        self.assertEqual(t.stat_collection.get_attribute(AttributeId.AGILITY).value, 6, "Did not apply flat agility debuff correctly")
+        self.t = Character('wm', sc, s1, counter=10)
 
-        psb = AttributeModifier(AttributeModType.PERCENTMULTIPLY, AttributeId.STRENGTH, 0.5, 2)
-        t.stat_collection.get_attribute(AttributeId.STRENGTH).add_modifier(psb)
-        self.assertEqual(t.stat_collection.get_attribute(AttributeId.STRENGTH).value, 7.5, "Did not apply flat agility debuff correctly")
+    def test_attribute_debuff(self):
+        fadb = AttributeModifier(
+            AttributeModType.FLAT, AttributeId.AGILITY, -4, 1)
+        self.t.stat_collection.get_attribute(
+            AttributeId.AGILITY).add_modifier(fadb)
+        self.assertEqual(self.t.stat_collection.get_attribute(
+            AttributeId.AGILITY).value, 6, "Did not apply flat agility debuff correctly")
 
-        fsb = AttributeModifier(AttributeModType.FLAT, AttributeId.STRENGTH, 5, 1)
-        t.stat_collection.get_attribute(AttributeId.STRENGTH).add_modifier(fsb)
-        self.assertEqual(t.stat_collection.get_attribute(AttributeId.STRENGTH).value, 15, "Did not apply buffs in the correct order")
-        # s2 = Sprite('mage', (4,7), (4,8))
-        # s2.move_a_square()
-        # self.assertEqual(s2.facing, (4,9), "4,6")
-        # s3 = Sprite('mage', (0,0), (1,0))
-        # s3.move_a_square()
-        # self.assertEqual(s3.facing, (2,0), "4,6")
-        # s4 = Sprite('mage', (0,0), (-1,0))
-        # s4.move_a_square()
-        # self.assertEqual(s4.facing, (-1,0), "4,6")
+    def test_attribute_percent_buff(self):
+        psb = AttributeModifier(
+            AttributeModType.PERCENTMULTIPLY, AttributeId.STRENGTH, 0.5, 2)
+        self.t.stat_collection.get_attribute(
+            AttributeId.STRENGTH).add_modifier(psb)
+        self.assertEqual(self.t.stat_collection.get_attribute(
+            AttributeId.STRENGTH).value, 7.5, "Did not apply flat agility debuff correctly")
+
+    def test_attribute_stack(self):
+        psb = AttributeModifier(
+            AttributeModType.PERCENTMULTIPLY, AttributeId.STRENGTH, 0.5, 2)
+        self.t.stat_collection.get_attribute(
+            AttributeId.STRENGTH).add_modifier(psb)
+        fsb = AttributeModifier(AttributeModType.FLAT,
+                                AttributeId.STRENGTH, 5, 1)
+        self.t.stat_collection.get_attribute(
+            AttributeId.STRENGTH).add_modifier(fsb)
+        self.assertEqual(self.t.stat_collection.get_attribute(
+            AttributeId.STRENGTH).value, 15, "Did not apply buffs in the correct order")
+
 if __name__ == '__main__':
     unittest.main()
