@@ -1,3 +1,5 @@
+Implement a better system for abilities
+- Abilities implement an interface?
 Infobox on tile hover
 Spritesheet implementation
 Defend utility ability
